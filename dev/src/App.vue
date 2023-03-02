@@ -1,8 +1,12 @@
 <template>
-	<RecycleList />
+	<RecycleList>
+		<template #default="{ row }">
+			{{ row }}
+		</template>
+	</RecycleList>
 </template>
 
 <script setup>
-import RecycleList from 'recycle-list/index.vue';
+import RecycleList from 'recycle-list';
 
 </script>
