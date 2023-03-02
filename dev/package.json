@@ -1,0 +1,19 @@
+{
+  "name": "@recycle-list/dev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite"
+  },
+  "author": "S.F",
+  "license": "MIT",
+  "dependencies": {
+    "vue": "^3.2.47"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.0.0",
+    "path": "^0.12.7",
+    "vite": "^4.1.4"
+  }
+}
