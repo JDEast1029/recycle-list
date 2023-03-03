@@ -44,5 +44,8 @@
   },
   "peerDependencies": {
     "vue": "^3.2.0"
+  },
+  "dependencies": {
+    "lodash.throttle": "^4.1.1"
   }
 }
