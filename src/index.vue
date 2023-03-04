@@ -13,37 +13,51 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, onBeforeMount } from 'vue';
+import { createPlaceholderData } from './constants.ts';
 import RecycleCore from './recycle-core.vue';
 
 const props = defineProps({
 	...RecycleCore.props,
+	pageSize: {
+		type: Number,
+		default: 20
+	}
 });
 
 const dataSource = ref([]);
+const isLoaded = ref(false);
+
+let page = 1;
+
+const loadData = () => {
+	setTimeout(() => {
+		console.log((page - 1) * props.pageSize, props.pageSize);
+		dataSource.value.splice(
+			(page - 1) * props.pageSize, 
+			props.pageSize,
+			...Array.from({ length: props.pageSize }, (it, index) => {
+				const id = (page - 1) * props.pageSize + index;
+				return {
+					id,
+					name: `第${id + 1}条数据`,
+					height: 100 + (id % 3) * 7
+				};
+			})
+		);
+	}, 1000);
+};
 
 const handleScrollToBottom = (scrollTop) => {
-	if (dataSource.value.length <= 41) {
-		dataSource.value[40] = {
-			id: 40,
-			isPlaceholder: true
-		};
-		setTimeout(() => {
-			dataSource.value.splice(40, 10, ...Array.from({ length: 10 }, (it, index) => ({
-				id: index,
-				name: `第${40 + index + 1}条数据`
-			})));
-		}, 2000);
+	if (page <= 100) {
+		page++;
+		dataSource.value.splice((page - 1) * props.pageSize, 1, ...createPlaceholderData(1, props.rowKey));
+		loadData();
 	}
 };
 
 onMounted(() => {
-	setTimeout(() => {
-		dataSource.value = Array.from({ length: 40 }, (it, index) => ({
-			id: index,
-			name: `第${index + 1}条数据`
-		}));
-	}, 500);
+	loadData();
 });
 </script>
 

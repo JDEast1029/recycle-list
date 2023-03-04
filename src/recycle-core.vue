@@ -24,10 +24,9 @@
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
+import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, createPlaceholderData } from './constants.ts';
 import RecycleItem from './recycle-item.vue';
 
-const PLACEHOLDER_HEIGHT = 90;
-const PLACEHOLDER_COUNT = 8; // 没有数据是placeholderItem的个数，占满全屏
 const props = defineProps({
 	dataSource: {
 		type: Array,
@@ -101,12 +100,7 @@ const createDataByScroll = (dataSource = props.dataSource, force = false) => {
 	});
 };
 
-const createPlaceholderData = (count) => {
-	return Array.from(
-		{ length: count }, 
-		(it, index) => ({ [props.rowKey]: index, isPlaceholder: true, originIndex: index })
-	);
-};
+
 
 // 容器的总高度，item未渲染的那defHeight计算
 const calcContentHeight = () => {
@@ -165,7 +159,7 @@ watch(
 			itemRectArray.length = PLACEHOLDER_COUNT;
 			rebuildItemRectArray();
 			calcContentHeight();
-			currentData.value = createPlaceholderData(PLACEHOLDER_COUNT);
+			currentData.value = createPlaceholderData(PLACEHOLDER_COUNT, props.rowKey);
 		} else {
 			itemRectArray.length = newDataSource.length;
 			rebuildItemRectArray();
