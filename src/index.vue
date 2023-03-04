@@ -30,13 +30,13 @@ const handleScrollToBottom = (scrollTop) => {
 			id: 20,
 			isPlaceholder: true
 		};
+		setTimeout(() => {
+			dataSource.value[20] = {
+				id: 20,
+				name: `第${20 + 1}条数据`
+			};
+		}, 2000);
 	}
-	// setTimeout(() => {
-	// 	dataSource.value[20] = {
-	// 		id: 20,
-	// 		name: `第${20 + 1}条数据`
-	// 	};
-	// }, 2000);
 };
 
 onMounted(() => {

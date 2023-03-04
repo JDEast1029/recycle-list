@@ -70,11 +70,13 @@ let prevFirstInViewIndex = 0;
 const getFirstInViewIndex = () => {
 	for (let i = 0; i < itemRectArray.length - 1; i++) {
 		const { offsetTop, height } = itemRectArray[i];
-		// item是否在顶部视图可见 && item的offsetTop + 容器的高度 <= 内容的高度 && 保证最后有足够的Item被渲染避免渲染数据不足
-		if (
-			(offsetTop <= scrollTop.value && offsetTop + height > scrollTop.value)
-			&& offsetTop + containerHeight <= contentHeight.value
-			&& i + props.renderCount <= itemRectArray.length
+		// console.log('i', i);
+		// console.log(`offsetTop: ${offsetTop}, nextScrollTop: ${offsetTop + height}, scrollTop: ${scrollTop.value}`, offsetTop + containerHeight <= contentHeight.value);
+		// 第一种情况：item在顶部视图可见
+		// 第二种情况：item在顶部视图不可见，但i后面没有过多的数据展示了， 
+		// TODO: 这里使用renderCount不太可取，现在item高度是固定的，如果变化，renderCount个item高度不足以铺满容器就会导致底部空白
+		if ((offsetTop <= scrollTop.value && offsetTop + height > scrollTop.value)
+			|| (offsetTop + height < scrollTop.value && i + props.renderCount === itemRectArray.length)
 		) {
 			return i;
 		}
@@ -83,11 +85,10 @@ const getFirstInViewIndex = () => {
 	return prevFirstInViewIndex;
 };
 
-const createDataByScroll = (dataSource = props.dataSource) => {
+const createDataByScroll = (dataSource = props.dataSource, force = false) => {
 	const index = getFirstInViewIndex();
-	if (index !== 0 && index === prevFirstInViewIndex) return;
+	if (index !== 0 && index === prevFirstInViewIndex && !force) return;
 	prevFirstInViewIndex = index;
-	console.log('index', index);
 	currentData.value = dataSource.slice(index, index + props.renderCount).map((it, i) => {
 		return {
 			...it,
@@ -163,8 +164,7 @@ watch(
 		itemRectArray.length = newDataSource.length;
 		rebuildItemRectArray();
 		calcContentHeight();
-		// console.log('itemRectArray', itemRectArray);
-		createDataByScroll(newDataSource);
+		createDataByScroll(newDataSource, true);
 	},
 	{ deep: true }
 );
