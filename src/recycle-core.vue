@@ -21,6 +21,7 @@
 </template>
 
 <script setup>
+import debounce from 'lodash.debounce';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
 import RecycleItem from './recycle-item.vue';
 
@@ -42,8 +43,13 @@ const props = defineProps({
 	renderCount: {
 		type: Number,
 		default: 10,
+	},
+	reachBottomDistance: {
+		type: Number,
+		default: 0
 	}
 });
+const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
 const containerRef = ref(null); // 滚动容器
 const contentRef = ref(null); // 内容
@@ -64,16 +70,12 @@ let prevFirstInViewIndex = 0;
 const getFirstInViewIndex = () => {
 	for (let i = 0; i < itemRectArray.length - 1; i++) {
 		const { offsetTop, height } = itemRectArray[i];
-		// console.log('i', i);
-		// console.log(`offsetTop: ${offsetTop}, nextScrollTop: ${offsetTop + height}, scrollTop: ${scrollTop.value}`);
-		
 		// item是否在顶部视图可见 && item的offsetTop + 容器的高度 <= 内容的高度 && 保证最后有足够的Item被渲染避免渲染数据不足
 		if (
 			(offsetTop <= scrollTop.value && offsetTop + height > scrollTop.value)
 			&& offsetTop + containerHeight <= contentHeight.value
 			&& i + props.renderCount <= itemRectArray.length
 		) {
-			prevFirstInViewIndex = i;
 			return i;
 		}
 	}
@@ -83,7 +85,9 @@ const getFirstInViewIndex = () => {
 
 const createDataByScroll = (dataSource = props.dataSource) => {
 	const index = getFirstInViewIndex();
-	// console.log('index', index);
+	if (index !== 0 && index === prevFirstInViewIndex) return;
+	prevFirstInViewIndex = index;
+	console.log('index', index);
 	currentData.value = dataSource.slice(index, index + props.renderCount).map((it, i) => {
 		return {
 			...it,
@@ -114,8 +118,19 @@ const rebuildItemRectArray = (index = 0) => {
 	}
 };
 
+let prevScrollTop = 0;
+
+const handleReachBottom = debounce(function () {
+	emit('scroll-to-bottom', scrollTop.value);
+}, 300, { leading: true, trailing: false });
+
 const handleScroll = (e) => {
 	scrollTop.value = e.target.scrollTop;
+	emit('scroll', scrollTop.value);
+	if (prevScrollTop < scrollTop.value && scrollTop.value + containerHeight + props.reachBottomDistance >= contentHeight.value) {
+		handleReachBottom();
+	}
+	prevScrollTop = scrollTop.value;
 	createDataByScroll();
 };
 
@@ -129,6 +144,7 @@ const handleScrollThrottle = (e) => {
 	}
 };
 
+// TODO: rebuildItemRectArray, calcContentHeight 这些操作需要收集之后统一处理，优化性能
 const handleItemReady = (itemRect, originIndex) => {
 	itemRectArray[originIndex] = itemRect;
 	rebuildItemRectArray(originIndex);
@@ -146,8 +162,11 @@ watch(
 	async (newDataSource) => {	
 		itemRectArray.length = newDataSource.length;
 		rebuildItemRectArray();
+		calcContentHeight();
+		// console.log('itemRectArray', itemRectArray);
 		createDataByScroll(newDataSource);
-	}
+	},
+	{ deep: true }
 );
 
 onBeforeMount(() => {
