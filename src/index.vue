@@ -2,7 +2,7 @@
 	<div class="rl-main">
 		<RecycleCore 
 			:data-source="dataSource"
-			:render-count="pageSize"
+			:render-count="renderCount"
 			:def-height="defHeight"
 		>
 			<template #default="{ row, index }">
@@ -18,16 +18,17 @@ import RecycleCore from './recycle-core.vue';
 
 const props = defineProps({
 	...RecycleCore.props,
-	pageSize: RecycleCore.props.renderCount
 });
 
 const dataSource = ref([]);
 
 onMounted(() => {
-	dataSource.value = Array.from({ length: 100 }, (it, index) => ({
-		id: index,
-		name: `第${index + 1}条数据`
-	}));
+	setTimeout(() => {
+		dataSource.value = Array.from({ length: 20 }, (it, index) => ({
+			id: index,
+			name: `第${index + 1}条数据`
+		}));
+	}, 300);
 });
 </script>
 

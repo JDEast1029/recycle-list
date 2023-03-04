@@ -1,7 +1,7 @@
 <template>
-	<RecycleList class="v-demo" :page-size="40">
+	<RecycleList class="v-demo" :render-count="10">
 		<template #default="{ row, index}">
-			<div :style="{ background: `${index % 2 === 0 ? '#fff000' : '#ffffff'}` }" style="height: 50px">
+			<div :style="{ background: `${index % 2 === 0 ? '#fff000' : '#ffffff'}`, height: `${100}px` }" style="color: #ff0000;">
 				{{ row.name }} - {{ index }}
 			</div>
 		</template>
@@ -11,8 +11,6 @@
 <script setup>
 import { ref } from 'vue';
 import RecycleList from 'recycle-list';
-
-const height = ref('20px');
 
 </script>
 

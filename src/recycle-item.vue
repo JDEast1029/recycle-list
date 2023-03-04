@@ -33,7 +33,10 @@ const getCurrentHeight = () => {
 const handleMutationCallback = (mutationsList, observer) => {
 	if (getCurrentHeight() !== currentHeight) {
 		currentHeight = getCurrentHeight();
-		emit('resize', currentHeight);
+		emit('resize', {
+			offsetTop: itemRef.value.offsetTop,
+			height: currentHeight
+		});
 	}
 };
 
@@ -45,7 +48,10 @@ onMounted(() => {
 		subtree: true, // 监听当前节点树，所有节点的属性变化
 		childList: true, // 监听当前节点中发生的节点的新增与删除
 	});
-	emit('ready', currentHeight);
+	emit('ready', {
+		offsetTop: itemRef.value.offsetTop,
+		height: currentHeight
+	});
 });
 
 onUnmounted(() => {
@@ -79,13 +85,14 @@ onUnmounted(() => {
 		ul {
 			list-style: none;
 			display: block;
+			margin-block-end: 8px;
 		}
 		&--paragraph {
-			margin-block-start: 16px;
+			margin-block-start: 12px;
 			padding: 0;
 			box-sizing: border-box;
 			>li + li {
-				margin-block-start: 16px;
+				margin-block-start: 12px;
 			}
 		}
 	}
