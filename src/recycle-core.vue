@@ -11,8 +11,8 @@
 				:key="rowKey ? item[rowKey] : item"
 				:placeholder="item.isPlaceholder"
 				class="rl-core__item"
-				@resize="handleItemResize($event, item.originIndex)"
-				@ready="handleItemReady($event, item.originIndex)"
+				@resize="!item.isPlaceholder && handleItemRect($event, item.originIndex)"
+				@ready="!item.isPlaceholder && handleItemRect($event, item.originIndex)"
 			>
 				<slot :row="item" :index="item.originIndex" />
 			</RecycleItem>
@@ -22,9 +22,12 @@
 
 <script setup>
 import debounce from 'lodash.debounce';
+import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
 import RecycleItem from './recycle-item.vue';
 
+const PLACEHOLDER_HEIGHT = 90;
+const PLACEHOLDER_COUNT = 8; // 没有数据是placeholderItem的个数，占满全屏
 const props = defineProps({
 	dataSource: {
 		type: Array,
@@ -33,16 +36,6 @@ const props = defineProps({
 	rowKey: {
 		type: String,
 		default: 'id'
-	},
-	// 默认高度
-	defHeight: {
-		type: Number,
-		default: 50,
-	},
-	// 渲染条数
-	renderCount: {
-		type: Number,
-		default: 10,
 	},
 	reachBottomDistance: {
 		type: Number,
@@ -70,14 +63,12 @@ let prevFirstInViewIndex = 0;
 const getFirstInViewIndex = () => {
 	for (let i = 0; i < itemRectArray.length - 1; i++) {
 		const { offsetTop, height } = itemRectArray[i];
-		// console.log('i', i);
-		// console.log(`offsetTop: ${offsetTop}, nextScrollTop: ${offsetTop + height}, scrollTop: ${scrollTop.value}`, offsetTop + containerHeight <= contentHeight.value);
 		// 第一种情况：item在顶部视图可见
-		// 第二种情况：item在顶部视图不可见，但i后面没有过多的数据展示了， 
-		// TODO: 这里使用renderCount不太可取，现在item高度是固定的，如果变化，renderCount个item高度不足以铺满容器就会导致底部空白
+		// 第二种情况：item在顶部视图不可见，但后面item已经不够撑满容器了， 
 		if ((offsetTop <= scrollTop.value && offsetTop + height > scrollTop.value)
-			|| (offsetTop + height < scrollTop.value && i + props.renderCount === itemRectArray.length)
+			|| (offsetTop + height < scrollTop.value && offsetTop + height + containerHeight >= contentHeight.value)
 		) {
+			prevFirstInViewIndex = i;
 			return i;
 		}
 	}
@@ -85,11 +76,23 @@ const getFirstInViewIndex = () => {
 	return prevFirstInViewIndex;
 };
 
+const getRenderCount = (index) => {
+	const { offsetTop, height } = itemRectArray[index];
+	let renderHeight = height - (scrollTop.value - offsetTop);
+	let count = 1;
+	index++;
+	while (renderHeight <= containerHeight && index < itemRectArray.length) {
+		renderHeight += itemRectArray[index].height;
+		index++;
+		count++;
+	}
+	return count;
+};
+
 const createDataByScroll = (dataSource = props.dataSource, force = false) => {
 	const index = getFirstInViewIndex();
-	if (index !== 0 && index === prevFirstInViewIndex && !force) return;
-	prevFirstInViewIndex = index;
-	currentData.value = dataSource.slice(index, index + props.renderCount).map((it, i) => {
+	const renderCount = getRenderCount(index);
+	currentData.value = dataSource.slice(index, index + renderCount).map((it, i) => {
 		return {
 			...it,
 			originIndex: index + i,
@@ -114,7 +117,7 @@ const rebuildItemRectArray = (index = 0) => {
 	for (let i = index; i < itemRectArray.length; i++) {
 		itemRectArray[i] = {
 			offsetTop: i === 0 ? 0 : itemRectArray[i - 1].offsetTop + itemRectArray[i - 1].height,
-			height: itemRectArray[i] ? itemRectArray[i].height : props.defHeight
+			height: itemRectArray[i] ? itemRectArray[i].height : PLACEHOLDER_HEIGHT
 		};
 	}
 };
@@ -145,37 +148,34 @@ const handleScrollThrottle = (e) => {
 	}
 };
 
-// TODO: rebuildItemRectArray, calcContentHeight 这些操作需要收集之后统一处理，优化性能
-const handleItemReady = (itemRect, originIndex) => {
+const handleItemRect = (itemRect, originIndex) => {
+	const { height } = itemRectArray[originIndex];
 	itemRectArray[originIndex] = itemRect;
 	rebuildItemRectArray(originIndex);
-	calcContentHeight();
-};
-
-const handleItemResize = (itemRect, originIndex) => {
-	itemRectArray[originIndex] = itemRect;
-	rebuildItemRectArray(originIndex);
-	calcContentHeight();
+	contentHeight.value = contentHeight.value + itemRect.height - height;
+	throttle(createDataByScroll, 50)();
 };
 
 watch(
 	() => props.dataSource,
 	async (newDataSource) => {	
-		itemRectArray.length = newDataSource.length;
-		rebuildItemRectArray();
-		calcContentHeight();
-		createDataByScroll(newDataSource, true);
+		if (newDataSource.length === 0) {
+			// await nextTick(); // 初始化时containerHeight还没获取到，这里需要在nextTick之后执行
+			// newDataSource = createPlaceholderData(Math.ceil(containerHeight / PLACEHOLDER_HEIGHT));
+			itemRectArray.length = PLACEHOLDER_COUNT;
+			rebuildItemRectArray();
+			calcContentHeight();
+			currentData.value = createPlaceholderData(PLACEHOLDER_COUNT);
+		} else {
+			itemRectArray.length = newDataSource.length;
+			rebuildItemRectArray();
+			calcContentHeight();
+			createDataByScroll(newDataSource, true);
+		}
+		
 	},
-	{ deep: true }
+	{ deep: true, immediate: true }
 );
-
-onBeforeMount(() => {
-	let data = props.dataSource;
-	if (data.length === 0) {
-		data = createPlaceholderData(props.renderCount);
-	}
-	createDataByScroll(data);
-});
 
 onMounted(() => {
 	containerHeight = containerRef.value.clientHeight;

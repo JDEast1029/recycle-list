@@ -65,7 +65,7 @@ onUnmounted(() => {
 	&__skeleton {
 		display: table;
 		width: 100%;
-		padding: 6px;
+		padding: 5px;
 		box-sizing: border-box;
 		&--content {
 			display: table-cell;
