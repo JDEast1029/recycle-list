@@ -1,8 +1,9 @@
 <template>
 	<div ref="containerRef" class="rl-core" @scroll="handleScrollThrottle">
+		<!-- 滚动到后面时出现空白，这样【内容高度】就不能是真实的，需要 减掉 偏移量【translateHeight】 -->
 		<div 
 			ref="contentRef"
-			:style="{height: `${contentHeight}px`, transform: `translateY(${translateHeight}px)`}"
+			:style="{height: `${contentHeight - translateHeight}px`, transform: `translateY(${translateHeight}px)`}"
 			class="rl-core__content"
 		>
 			<RecycleItem 
