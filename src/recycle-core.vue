@@ -16,7 +16,7 @@
 			>
 				<slot :row="item" :index="item.originIndex" />
 			</RecycleItem>
-			<slot name="loading" />
+			<slot name="extra" />
 		</div>
 	</div>
 </template>

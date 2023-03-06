@@ -1,5 +1,5 @@
 <template>
-	<div class="rl-pdu">
+	<div class="rl-pull-down">
 		<slot />
 	</div>
 </template>
@@ -7,17 +7,16 @@
 <script setup>
 
 const props = defineProps({
-	disablePullDown: Boolean,
-	disablePullUp: Boolean
+	disabled: Boolean,
 });
 
-const emit = defineEmits(['pull-down', 'pull-up']);
+const emit = defineEmits(['pull-down']);
 
 
 </script>
 
 <style lang="less">
-.rl-pdu {
+.rl-pull-down {
 	// transform: translateY(-22px);
 	height: 100%;
 }

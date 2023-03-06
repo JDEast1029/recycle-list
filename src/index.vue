@@ -1,5 +1,10 @@
 <template>
-	<PullDownUp class="rl-main">
+	<PullDown 
+		class="rl-main"
+		:disabled="pullDownDisabled"
+	>
+		<slot name="header" />
+
 		<RecycleCore 
 			:data-source="dataSource"
 			:reach-bottom-distance="100"
@@ -10,13 +15,15 @@
 			<template #default="{ row, index }">
 				<slot :row="row" :index="index" />
 			</template>
-			<template #loading>
-				<slot name="loading">
-					<RecycleItem v-if="isLoading" placeholder />
+			<template v-if="isLoading" #extra>
+				<slot name="pull-up">
+					<RecycleItem placeholder />
 				</slot>
 			</template>
 		</RecycleCore>
-	</PullDownUp>
+		
+		<slot name="footer" />
+	</PullDown>
 </template>
 
 <script setup>
@@ -24,14 +31,15 @@ import { onMounted, ref, onBeforeMount } from 'vue';
 import { createPlaceholderData } from './constants.ts';
 import RecycleCore from './recycle-core.vue';
 import RecycleItem from './recycle-item.vue';
-import PullDownUp from './pull-down-up.vue';
+import PullDown from './pull-down.vue';
 
 const props = defineProps({
 	...RecycleCore.props,
 	pageSize: {
 		type: Number,
 		default: 20
-	}
+	},
+	pullDownDisabled: Boolean
 });
 
 const dataSource = ref([]);
