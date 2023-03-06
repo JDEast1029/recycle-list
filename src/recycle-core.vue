@@ -1,5 +1,9 @@
 <template>
-	<div ref="containerRef" class="rl-core" @scroll="handleScrollThrottle">
+	<div 
+		ref="containerRef"
+		class="rl-core"
+		@scroll="handleScrollThrottle"
+	>
 		<!-- 滚动到后面时出现空白，这样【内容高度】就不能是真实的，需要 减掉 偏移量【translateHeight】 -->
 		<div 
 			ref="contentRef"
@@ -47,7 +51,7 @@ const props = defineProps({
 		default: true
 	}
 });
-const emit = defineEmits(['scroll-to-top', 'scroll-to-bottom', 'scroll']);
+const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
 const containerRef = ref(null); // 滚动容器
 const contentRef = ref(null); // 内容
@@ -130,7 +134,7 @@ const handleReachBottom = debounce(function (e) {
 
 const handleScroll = (e) => {
 	if (e.target.scrollTop === 0 && scrollTop.value !== 0) {
-		emit('scroll-to-top', e);
+		e.preventDefault();
 	}
 	scrollTop.value = e.target.scrollTop;
 	emit('scroll', scrollTop.value);

@@ -1,7 +1,9 @@
 <template>
 	<PullDown 
+		ref="pullDownRef"
 		class="rl-main"
 		:disabled="pullDownDisabled"
+		:release-callback="handleReleaseUpdate"
 	>
 		<slot name="header" />
 
@@ -9,7 +11,6 @@
 			:data-source="dataSource"
 			:reach-bottom-distance="100"
 			:skeleton="skeleton"
-			@scroll-to-top="handleScrollToTop"
 			@scroll-to-bottom="handleScrollToBottom"
 		>
 			<template #default="{ row, index }">
@@ -42,6 +43,7 @@ const props = defineProps({
 	pullDownDisabled: Boolean
 });
 
+const pullDownRef = ref(null);
 const dataSource = ref([]);
 const isLoading = ref(false);
 
@@ -69,10 +71,6 @@ const loadData = () => {
 	});
 };
 
-const handleScrollToTop = (e) => {
-	e.preventDefault();
-};
-
 const handleScrollToBottom = async (e) => {
 	if (page <= 100 && !isLoading.value) {
 		page++;
@@ -81,6 +79,10 @@ const handleScrollToBottom = async (e) => {
 		await loadData();
 		isLoading.value = false;
 	}
+};
+
+const handleReleaseUpdate = () => {
+	return true;
 };
 
 onMounted(() => {
