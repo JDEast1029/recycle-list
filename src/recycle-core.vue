@@ -16,6 +16,7 @@
 			>
 				<slot :row="item" :index="item.originIndex" />
 			</RecycleItem>
+			<slot name="loading" />
 		</div>
 	</div>
 </template>
@@ -24,7 +25,7 @@
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
-import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, createPlaceholderData } from './constants.ts';
+import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, DEFAULT_RENDER_COUNT, createPlaceholderData } from './constants.ts';
 import RecycleItem from './recycle-item.vue';
 
 const props = defineProps({
@@ -41,7 +42,7 @@ const props = defineProps({
 		default: 0
 	}
 });
-const emit = defineEmits(['scroll-to-bottom', 'scroll']);
+const emit = defineEmits(['scroll-to-top', 'scroll-to-bottom', 'scroll']);
 
 const containerRef = ref(null); // 滚动容器
 const contentRef = ref(null); // 内容
@@ -90,7 +91,7 @@ const getRenderCount = (index) => {
 
 const createDataByScroll = (dataSource = props.dataSource, force = false) => {
 	const index = getFirstInViewIndex();
-	const renderCount = getRenderCount(index);
+	const renderCount = Math.max(getRenderCount(index), DEFAULT_RENDER_COUNT);
 	currentData.value = dataSource.slice(index, index + renderCount).map((it, i) => {
 		return {
 			...it,
@@ -118,15 +119,18 @@ const rebuildItemRectArray = (index = 0) => {
 
 let prevScrollTop = 0;
 
-const handleReachBottom = debounce(function () {
-	emit('scroll-to-bottom', scrollTop.value);
+const handleReachBottom = debounce(function (e) {
+	emit('scroll-to-bottom', e);
 }, 300, { leading: true, trailing: false });
 
 const handleScroll = (e) => {
+	if (e.target.scrollTop === 0 && scrollTop.value !== 0) {
+		emit('scroll-to-top', e);
+	}
 	scrollTop.value = e.target.scrollTop;
 	emit('scroll', scrollTop.value);
 	if (prevScrollTop < scrollTop.value && scrollTop.value + containerHeight + props.reachBottomDistance >= contentHeight.value) {
-		handleReachBottom();
+		handleReachBottom(e);
 	}
 	prevScrollTop = scrollTop.value;
 	createDataByScroll();
