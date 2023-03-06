@@ -18,7 +18,7 @@ const emit = defineEmits(['pull-down', 'pull-up']);
 
 <style lang="less">
 .rl-pdu {
-	transform: translateY(-22px);
+	// transform: translateY(-22px);
 	height: 100%;
 }
 </style>

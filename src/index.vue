@@ -3,6 +3,7 @@
 		<RecycleCore 
 			:data-source="dataSource"
 			:reach-bottom-distance="100"
+			:skeleton="skeleton"
 			@scroll-to-top="handleScrollToTop"
 			@scroll-to-bottom="handleScrollToBottom"
 		>

@@ -40,6 +40,11 @@ const props = defineProps({
 	reachBottomDistance: {
 		type: Number,
 		default: 0
+	},
+	// 一开始加载时，整个页面是否展示骨架屏
+	skeleton: {
+		type: Boolean,
+		default: true
 	}
 });
 const emit = defineEmits(['scroll-to-top', 'scroll-to-bottom', 'scroll']);
@@ -77,7 +82,7 @@ const getFirstInViewIndex = () => {
 };
 
 const getRenderCount = (index) => {
-	const { offsetTop, height } = itemRectArray[index];
+	const { offsetTop = 0, height = 0 } = itemRectArray[index] || {};
 	let renderHeight = height - (scrollTop.value - offsetTop);
 	let count = 1;
 	index++;
@@ -157,9 +162,7 @@ const handleItemRect = (itemRect, originIndex) => {
 watch(
 	() => props.dataSource,
 	async (newDataSource) => {	
-		if (newDataSource.length === 0) {
-			// await nextTick(); // 初始化时containerHeight还没获取到，这里需要在nextTick之后执行
-			// newDataSource = createPlaceholderData(Math.ceil(containerHeight / PLACEHOLDER_HEIGHT));
+		if (props.skeleton && newDataSource.length === 0) {
 			itemRectArray.length = PLACEHOLDER_COUNT;
 			rebuildItemRectArray();
 			calcContentHeight();
