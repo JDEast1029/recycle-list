@@ -9,9 +9,11 @@
 			@touchcancel.stop="handleTouchEnd"
 		>
 			<div ref="pullDownRef">
-				<slot name="pull-down" :distance="moveDistance">
+				<slot name="pull-down" :distance="moveDistance" :status="status">
 					<!-- 状态：下拉刷新；释放更新(达到阈值)；正在刷新 -->
-					<div>{{ canRelease ? '释放更新' : '下拉刷新' }}</div>
+					<div v-if="status === PULL_DOWN_STATUS.PULL_DOWN">下拉刷新</div>
+					<div v-else-if="status === PULL_DOWN_STATUS.RELEASABLE">释放更新</div>
+					<div v-else-if="status === PULL_DOWN_STATUS.RELEASED">更新中</div>
 				</slot>
 			</div>
 			<slot />
@@ -22,7 +24,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useGesture } from './hooks/use-gesture.js';
-import { PULL_DOWN_STATUS } from './constants.ts';
+import { PULL_DOWN_STATUS } from './constants';
 
 const props = defineProps({
 	height: {
@@ -51,6 +53,7 @@ const { direction, offsetY, touchStart, touchMove, resetTouchStatus } = useGestu
 
 const pullDownRef = ref(null);
 const pullDownHeight = ref(0);
+const status = ref(PULL_DOWN_STATUS.PULL_DOWN);
 
 // 设置阻尼
 const moveDistance = computed({
@@ -71,6 +74,9 @@ const handleTouchStart = (e) => {
 };
 const handleTouchMove = (e) => {
 	touchMove(e);
+	if (canRelease.value) {
+		status.value = PULL_DOWN_STATUS.RELEASABLE;
+	}
 };
 const handleTouchEnd = async (e) => {
 	// 如果下拉未达到释放更新的距离，还原初始状态
@@ -79,11 +85,16 @@ const handleTouchEnd = async (e) => {
 	} else {
 		// 停留在阈值长度，等待后续事件更新完成后再还原
 		moveDistance.value = props.threshold / props.dampingRatio;
+
+		status.value = PULL_DOWN_STATUS.RELEASED;
+
 		let releasePending = props.onRelease();
 		if (!releasePending.then) releasePending = Promise.resolve(releasePending);
 		await releasePending.finally(() => {
 			resetTouchStatus();
 		});
+
+		status.value = PULL_DOWN_STATUS.PULL_DOWN;
 	}
 };
 

@@ -67,6 +67,7 @@ module.exports = {
 				"max": 1
 			}
 		}],
+		"vue/singleline-html-element-content-newline": 0,
 		"vue/require-default-prop": 0, // 可以不传递props
 		"vue/name-property-casing": 0,
 		"vue/component-definition-name-casing": ["warn", "kebab-case"],
