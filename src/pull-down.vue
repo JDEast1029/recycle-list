@@ -55,7 +55,7 @@ const pullDownHeight = ref(0);
 // 设置阻尼
 const moveDistance = computed({
 	get: () => {
-		return offsetY.value * props.dampingRatio;
+		return Math.max(offsetY.value, 0) * props.dampingRatio;
 	},
 	set: (value) => {
 		offsetY.value = value;
@@ -82,9 +82,7 @@ const handleTouchEnd = async (e) => {
 		let releasePending = props.onRelease();
 		if (!releasePending.then) releasePending = Promise.resolve(releasePending);
 		await releasePending.finally(() => {
-			setTimeout(() => {
-				resetTouchStatus();
-			}, 1000);
+			resetTouchStatus();
 		});
 	}
 };

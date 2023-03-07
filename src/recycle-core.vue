@@ -13,6 +13,7 @@
 			class="rl-core__content"
 		>
 			<RecycleItem
+				v-if="scrollTop <= headerHeight"
 				@resize="handleHeaderRect"
 				@ready="handleHeaderRect"
 			>

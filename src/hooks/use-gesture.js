@@ -2,19 +2,23 @@ import { ref } from 'vue';
 
 let MIN_DISTANCE = 10;
 const getDirection = (x, y) => {
-	if (x > y && x > MIN_DISTANCE) {
-		return 'horizontal';
+	if (Math.abs(x) > Math.abs(y) && Math.abs(x) > MIN_DISTANCE) {
+		if (x > 0) {
+			return 'right';
+		}
+		return 'left';
 	}
-	if (y > x && y > MIN_DISTANCE) {
-		return 'vertical';
+	if (Math.abs(y) > Math.abs(x) && Math.abs(y) > MIN_DISTANCE) {
+		if (y > 0) {
+			return 'down';
+		}
+		return 'up';
 	}
 	return '';
 };
 
 export const useGesture = () => {
 	let direction = ref('');
-	let deltaX = 0;
-	let deltaY = 0;
 	let offsetX = ref(0);
 	let offsetY = ref(0);
 	let startX = 0;
@@ -22,8 +26,6 @@ export const useGesture = () => {
 
 	const resetTouchStatus = () => {
 		direction.value = '';
-		deltaX = 0;
-		deltaY = 0;
 		offsetX.value = 0;
 		offsetY.value = 0;
 	};
@@ -34,10 +36,8 @@ export const useGesture = () => {
 	};
 	const touchMove = (event) => {
 		let touch = event.touches[0];
-		deltaX = touch.clientX - startX;
-		deltaY = touch.clientY - startY;
-		offsetX.value = Math.abs(deltaX);
-		offsetY.value = Math.abs(deltaY);
+		offsetX.value = touch.clientX - startX;
+		offsetY.value = touch.clientY - startY;
 		direction.value = direction.value || getDirection(offsetX.value, offsetY.value);
 	};
 
