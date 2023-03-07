@@ -1,5 +1,9 @@
 <template>
-	<RecycleList class="v-demo" height="100vh">
+	<RecycleList 
+		:load-data="loadData"
+		class="v-demo"
+		height="100vh"
+	>
 		<template #header>
 			<div style="height: 100px; background: #ff0000;" />
 		</template>
@@ -18,6 +22,21 @@
 import { ref, onMounted } from 'vue';
 import RecycleList from 'recycle-list';
 
+const loadData = (page, pageSize) => {
+	return new Promise((r, j) => {
+		setTimeout(() => {
+			const data = Array.from({ length: pageSize }, (it, index) => {
+				const id = (page - 1) * 10 + index;
+				return {
+					id,
+					name: `第${id + 1}条数据`,
+					height: 100 + (id % 3) * 7
+				};
+			});
+			r(data);
+		}, 1000);
+	});
+};
 </script>
 
 <style lang="less">

@@ -41,7 +41,12 @@ const props = defineProps({
 		type: Number,
 		default: 20
 	},
-	pullDownDisabled: Boolean
+	pullDownDisabled: Boolean,
+	loadData: {
+		type: Function,
+		required: true,
+		default: () => {}
+	}
 });
 
 const pullDownRef = ref(null);
@@ -50,26 +55,16 @@ const isLoading = ref(false);
 
 let page = 1;
 
-const loadData = () => {
+const loadData = async () => {
 	isLoading.value = true;
-	return new Promise((r, j) => {
-		setTimeout(() => {
-			dataSource.value.splice(
-				(page - 1) * props.pageSize, 
-				props.pageSize,
-				...Array.from({ length: props.pageSize }, (it, index) => {
-					const id = (page - 1) * props.pageSize + index;
-					return {
-						id,
-						name: `第${id + 1}条数据`,
-						height: 100 + (id % 3) * 7
-					};
-				})
-			);
-			isLoading.value = false;
-			r();
-		}, 1000);
-	});
+	const data = await props.loadData(page, props.pageSize);
+	dataSource.value.splice(
+		(page - 1) * props.pageSize, 
+		props.pageSize,
+		...data	
+	);
+	page++;
+	isLoading.value = false;
 };
 
 const handleScrollToBottom = async (e) => {

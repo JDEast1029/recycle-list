@@ -14,20 +14,23 @@
 		>
 			<RecycleItem
 				v-if="scrollTop <= headerHeight"
+				class="rl-core__header"
 				@resize="handleHeaderRect"
 				@ready="handleHeaderRect"
 			>
 				<slot name="header" />
 			</RecycleItem>
-			<RecycleItem 
-				v-for="item in currentData"
-				:key="rowKey ? item[rowKey] : item"
-				:placeholder="item._isPlaceholder"
-				@resize="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
-				@ready="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
-			>
-				<slot :row="item" :index="item.originIndex" />
-			</RecycleItem>
+			<div class="rl-core__list">
+				<RecycleItem 
+					v-for="item in currentData"
+					:key="rowKey ? item[rowKey] : item"
+					:placeholder="item._isPlaceholder"
+					@resize="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
+					@ready="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
+				>
+					<slot :row="item" :index="item.originIndex" />
+				</RecycleItem>
+			</div>
 			<slot name="footer" />
 		</div>
 	</div>
@@ -215,5 +218,10 @@ onMounted(() => {
 .rl-core {
 	height: 100%;
 	overflow-y: auto;
+	&__list {
+		// display: grid;
+		// grid-template-columns: repeat(3, 1fr);
+		// grid-template-rows: masonry;
+	}
 }
 </style>
