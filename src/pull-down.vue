@@ -1,6 +1,6 @@
 <template>
 	<div 
-		:style="{transform: `translateY(${-pullDownHeight + offsetY}px)`}"
+		:style="{height: `calc(${height} + ${pullDownHeight}px)`, transform: `translateY(${-pullDownHeight + moveDistance}px)`}"
 		class="rl-pull-down"
 		@touchstart.stop="handleTouchStart"
 		@touchmove.stop="handleTouchMove"
@@ -9,6 +9,7 @@
 	>
 		<div ref="pullDownRef">
 			<slot name="pull-down">
+				<!-- 状态：下拉刷新；释放更新(达到阈值)；正在刷新 -->
 				<div>{{ canRelease ? '释放更新' : '下拉刷新' }}</div>
 			</slot>
 		</div>
@@ -19,17 +20,27 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useGesture } from './hooks/use-gesture.js';
+import { PULL_DOWN_STATUS } from './constants.ts';
 
 const props = defineProps({
+	height: {
+		type: String,
+		default: '100%'
+	},
 	disabled: Boolean,
 	// 下拉阈值，超过这个值放手后可以触发【下拉事件】
 	threshold: {
 		type: Number,
-		default: 200
+		default: 40
 	},
-	releaseCallback: {
+	onRelease: {
 		type: Function,
 		default: () => {}
+	},
+	// 阻尼率
+	dampingRatio: {
+		type: Number,
+		default: 0.2
 	}
 });
 const emit = defineEmits([]);
@@ -40,12 +51,17 @@ const pullDownRef = ref(null);
 const pullDownHeight = ref(0);
 
 // 设置阻尼
-const moveDistance = computed(() => {
-	return offsetY.value;
+const moveDistance = computed({
+	get: () => {
+		return offsetY.value * props.dampingRatio;
+	},
+	set: (value) => {
+		offsetY.value = value;
+	}
 });
 
 const canRelease = computed(() => {
-	return moveDistance.value > props.threshold;
+	return moveDistance.value >= props.threshold;
 });
 
 const handleTouchStart = (e) => {
@@ -60,11 +76,13 @@ const handleTouchEnd = async (e) => {
 		resetTouchStatus();
 	} else {
 		// 停留在阈值长度，等待后续事件更新完成后再还原
-		moveDistance.value = props.threshold;
-		let releasePending = props.releaseCallback();
+		moveDistance.value = props.threshold / props.dampingRatio;
+		let releasePending = props.onRelease();
 		if (!releasePending.then) releasePending = Promise.resolve(releasePending);
 		await releasePending.finally(() => {
-			resetTouchStatus();
+			setTimeout(() => {
+				resetTouchStatus();
+			}, 1000);
 		});
 	}
 };
@@ -76,6 +94,6 @@ onMounted(() => {
 
 <style lang="less">
 .rl-pull-down {
-	height: 100%;
+	overflow: hidden;
 }
 </style>

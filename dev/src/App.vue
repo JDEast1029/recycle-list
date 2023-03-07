@@ -1,5 +1,8 @@
 <template>
-	<RecycleList class="v-demo">
+	<RecycleList class="v-demo" height="100vh">
+		<template #header>
+			<div style="height: 100px; background: #ff0000;" />
+		</template>
 		<template #default="{ row, index}">
 			<div 
 				:style="{ background: `${index % 2 === 0 ? '#fff000' : '#ffffff'}`, height: `${row.height}px` }"
@@ -19,6 +22,6 @@ import RecycleList from 'recycle-list';
 
 <style lang="less">
 .v-demo {
-	height: 100vh;
+	
 }
 </style>

@@ -1,8 +1,10 @@
 <template>
 	<div 
 		ref="containerRef"
+		:style="{ height }"
 		class="rl-core"
 		@scroll="handleScrollThrottle"
+		@touchmove="handleTouchPrevent"
 	>
 		<!-- 滚动到后面时出现空白，这样【内容高度】就不能是真实的，需要 减掉 偏移量【translateHeight】 -->
 		<div 
@@ -13,14 +15,14 @@
 			<RecycleItem 
 				v-for="item in currentData"
 				:key="rowKey ? item[rowKey] : item"
-				:placeholder="item.isPlaceholder"
+				:placeholder="item._isPlaceholder"
 				class="rl-core__item"
-				@resize="!item.isPlaceholder && handleItemRect($event, item.originIndex)"
-				@ready="!item.isPlaceholder && handleItemRect($event, item.originIndex)"
+				@resize="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
+				@ready="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
 			>
 				<slot :row="item" :index="item.originIndex" />
 			</RecycleItem>
-			<slot name="extra" />
+			<slot name="footer" />
 		</div>
 	</div>
 </template>
@@ -33,6 +35,10 @@ import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, DEFAULT_RENDER_COUNT, createPlac
 import RecycleItem from './recycle-item.vue';
 
 const props = defineProps({
+	height: {
+		type: String,
+		default: '100%'
+	},
 	dataSource: {
 		type: Array,
 		default: () => ([])
@@ -126,6 +132,12 @@ const rebuildItemRectArray = (index = 0) => {
 	}
 };
 
+const handleTouchPrevent = (e) => {
+	if (scrollTop.value > 0) {
+		e.stopPropagation();
+	}
+};
+
 let prevScrollTop = 0;
 
 const handleReachBottom = debounce(function (e) {
@@ -159,10 +171,12 @@ const handleItemRect = (itemRect, originIndex) => {
 	const { height } = itemRectArray[originIndex];
 	itemRectArray[originIndex] = itemRect;
 	rebuildItemRectArray(originIndex);
+	// 只需要加上 当前item与之前item的高度差即可，不需要遍历重新计算
 	contentHeight.value = contentHeight.value + itemRect.height - height;
 	throttle(createDataByScroll, 50)();
 };
 
+const HEADER_ITEM = { _recycleHeader: true, originIndex: 0 };
 watch(
 	() => props.dataSource,
 	async (newDataSource) => {	
