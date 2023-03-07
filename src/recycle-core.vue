@@ -25,10 +25,11 @@
 					v-for="item in currentData"
 					:key="rowKey ? item[rowKey] : item"
 					:placeholder="item._isPlaceholder"
-					@resize="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
-					@ready="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
+					class="rl-core__item"
+					@resize="!item._isPlaceholder && handleItemRect($event, item._originIndex)"
+					@ready="!item._isPlaceholder && handleItemRect($event, item._originIndex)"
 				>
-					<slot :row="item" :index="item.originIndex" />
+					<slot :row="item" :index="item._originIndex" />
 				</RecycleItem>
 			</div>
 			<slot name="footer" />
@@ -64,6 +65,18 @@ const props = defineProps({
 	skeleton: {
 		type: Boolean,
 		default: true
+	},
+	cols: {
+		type: Number,
+		default: 1
+	},
+	columnGap: {
+		type: Number,
+		default: 0
+	},
+	rowGap: {
+		type: Number,
+		default: 0
 	}
 });
 const emit = defineEmits(['scroll-to-bottom', 'scroll']);
@@ -76,7 +89,7 @@ const contentHeight = ref(0); // 内容的高度
 
 const headerHeight = ref(0);
 const translateHeight = computed(() => {
-	return currentData.value[0] ? currentData.value[0].offsetTop - headerHeight.value : 0;
+	return currentData.value[0] ? currentData.value[0]._offsetTop - headerHeight.value : 0;
 });
 
 let containerHeight = 0; // 滚动容器高度
@@ -120,8 +133,9 @@ const createDataByScroll = (dataSource = props.dataSource, force = false) => {
 	currentData.value = dataSource.slice(index, index + renderCount).map((it, i) => {
 		return {
 			...it,
-			originIndex: index + i,
-			offsetTop: itemRectArray[index + i]?.offsetTop ?? 0
+			_originIndex: index + i,
+			_offsetTop: itemRectArray[index + i]?.offsetTop ?? 0,
+			_height: itemRectArray[index + i]?.height ?? 0,
 		};
 	});
 };
@@ -219,9 +233,8 @@ onMounted(() => {
 	height: 100%;
 	overflow-y: auto;
 	&__list {
-		// display: grid;
-		// grid-template-columns: repeat(3, 1fr);
-		// grid-template-rows: masonry;
+	}
+	&__item {
 	}
 }
 </style>
