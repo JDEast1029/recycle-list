@@ -20,7 +20,8 @@
 				@resize="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
 				@ready="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
 			>
-				<slot :row="item" :index="item.originIndex" />
+				<slot v-if="item._recycleHeader" name="header" />
+				<slot v-else :row="item" :index="item.originIndex - 1" />
 			</RecycleItem>
 			<slot name="footer" />
 		</div>
@@ -31,7 +32,7 @@
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
-import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, DEFAULT_RENDER_COUNT, createPlaceholderData } from './constants.ts';
+import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, DEFAULT_RENDER_COUNT, HEADER_ITEM, createPlaceholderData } from './constants.ts';
 import RecycleItem from './recycle-item.vue';
 
 const props = defineProps({
@@ -69,6 +70,10 @@ const translateHeight = computed(() => {
 	return currentData.value[0] ? currentData.value[0].offsetTop : 0;
 });
 
+const allDataSource = computed(() => {
+	return [HEADER_ITEM, ...props.dataSource];
+});
+
 let containerHeight = 0; // 滚动容器高度
 let ticking = false; // 给滚动事件做节流
 
@@ -104,7 +109,7 @@ const getRenderCount = (index) => {
 	return count;
 };
 
-const createDataByScroll = (dataSource = props.dataSource, force = false) => {
+const createDataByScroll = (dataSource = allDataSource.value, force = false) => {
 	const index = getFirstInViewIndex();
 	const renderCount = Math.max(getRenderCount(index), DEFAULT_RENDER_COUNT);
 	currentData.value = dataSource.slice(index, index + renderCount).map((it, i) => {
@@ -176,15 +181,14 @@ const handleItemRect = (itemRect, originIndex) => {
 	throttle(createDataByScroll, 50)();
 };
 
-const HEADER_ITEM = { _recycleHeader: true, originIndex: 0 };
 watch(
-	() => props.dataSource,
+	() => allDataSource.value,
 	async (newDataSource) => {	
-		if (props.skeleton && newDataSource.length === 0) {
-			itemRectArray.length = PLACEHOLDER_COUNT;
+		if (props.skeleton && newDataSource.length === 1) {
+			itemRectArray.length = PLACEHOLDER_COUNT + 1;
 			rebuildItemRectArray();
 			calcContentHeight();
-			currentData.value = createPlaceholderData(PLACEHOLDER_COUNT, props.rowKey);
+			currentData.value = [...newDataSource, ...createPlaceholderData(PLACEHOLDER_COUNT, props.rowKey, 1)];
 		} else {
 			itemRectArray.length = newDataSource.length;
 			rebuildItemRectArray();

@@ -1,19 +1,21 @@
 <template>
-	<div 
-		:style="{height: `calc(${height} + ${pullDownHeight}px)`, transform: `translateY(${-pullDownHeight + moveDistance}px)`}"
-		class="rl-pull-down"
-		@touchstart.stop="handleTouchStart"
-		@touchmove.stop="handleTouchMove"
-		@touchend.stop="handleTouchEnd"
-		@touchcancel.stop="handleTouchEnd"
-	>
-		<div ref="pullDownRef">
-			<slot name="pull-down">
-				<!-- 状态：下拉刷新；释放更新(达到阈值)；正在刷新 -->
-				<div>{{ canRelease ? '释放更新' : '下拉刷新' }}</div>
-			</slot>
+	<div :style="{ height }" class="rl-pull-down-wrapper">
+		<div 
+			:style="{height: `calc(${height} + ${pullDownHeight}px)`, transform: `translateY(${-pullDownHeight + moveDistance}px)`}"
+			class="rl-pull-down"
+			@touchstart.stop="handleTouchStart"
+			@touchmove.stop="handleTouchMove"
+			@touchend.stop="handleTouchEnd"
+			@touchcancel.stop="handleTouchEnd"
+		>
+			<div ref="pullDownRef">
+				<slot name="pull-down" :distance="moveDistance">
+					<!-- 状态：下拉刷新；释放更新(达到阈值)；正在刷新 -->
+					<div>{{ canRelease ? '释放更新' : '下拉刷新' }}</div>
+				</slot>
+			</div>
+			<slot />
 		</div>
-		<slot />
 	</div>
 </template>
 
@@ -93,6 +95,9 @@ onMounted(() => {
 </script>
 
 <style lang="less">
+.rl-pull-down-wrapper {
+	overflow: hidden;
+}
 .rl-pull-down {
 	overflow: hidden;
 }
