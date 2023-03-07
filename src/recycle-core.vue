@@ -93,7 +93,6 @@ const translateHeight = computed(() => {
 });
 
 let containerHeight = 0; // 滚动容器高度
-let ticking = false; // 给滚动事件做节流
 
 const itemRectArray = []; // item 距离顶部距离的集合
 
@@ -114,6 +113,7 @@ const getFirstInViewIndex = () => {
 	return prevFirstInViewIndex;
 };
 
+// 计算撑满视图需要渲染的条数
 const getRenderCount = (index) => {
 	const { offsetTop = 0, height = 0 } = itemRectArray[index] || {};
 	let renderHeight = height - (scrollTop.value - offsetTop);
@@ -127,7 +127,7 @@ const getRenderCount = (index) => {
 	return count;
 };
 
-const createDataByScroll = (dataSource = props.dataSource, force = false) => {
+const createData = (dataSource = props.dataSource, force = false) => {
 	const index = getFirstInViewIndex();
 	const renderCount = Math.max(getRenderCount(index), DEFAULT_RENDER_COUNT);
 	currentData.value = dataSource.slice(index, index + renderCount).map((it, i) => {
@@ -145,12 +145,24 @@ const calcContentHeight = () => {
 	contentHeight.value = itemRectArray.reduce((pre, cur) => pre += cur.height, 0);
 };
 
+// 重新计算item的offsetTop和Height，对于还没有渲染的Item给固定高度【PLACEHOLDER_HEIGHT】
 const rebuildItemRectArray = (index = 0) => {
 	for (let i = index; i < itemRectArray.length; i++) {
 		itemRectArray[i] = {
 			offsetTop: i === 0 ? (itemRectArray[0] || {}).offsetTop || 0 : itemRectArray[i - 1].offsetTop + itemRectArray[i - 1].height,
 			height: itemRectArray[i] ? itemRectArray[i].height : PLACEHOLDER_HEIGHT
 		};
+	}
+};
+
+let dataTicking = false;
+const throttleCreateData = (dataSource, force) => {
+	if (!dataTicking) {
+		window.requestAnimationFrame(() => {
+			createData(dataSource, force);
+			dataTicking = false;
+		});
+		dataTicking = true;
 	}
 };
 
@@ -176,9 +188,10 @@ const handleScroll = (e) => {
 		handleReachBottom(e);
 	}
 	prevScrollTop = scrollTop.value;
-	createDataByScroll();
+	throttleCreateData();
 };
 
+let ticking = false; // 给滚动事件做节流
 const handleScrollThrottle = (e) => {
 	if (!ticking) {
 		window.requestAnimationFrame(() => {
@@ -199,9 +212,9 @@ const handleItemRect = (itemRect, originIndex) => {
 	const { height = 0 } = itemRectArray[originIndex] || {};
 	itemRectArray[originIndex] = itemRect;
 	rebuildItemRectArray(originIndex);
-	// 只需要加上 当前item与之前item的高度差即可，不需要遍历重新计算
+	// 只需要加上 当前item与之前的高度差即可，不需要遍历重新计算
 	contentHeight.value = contentHeight.value + itemRect.height - height;
-	throttle(createDataByScroll, 50)();
+	throttleCreateData();
 };
 
 watch(
@@ -216,9 +229,8 @@ watch(
 			itemRectArray.length = newDataSource.length;
 			rebuildItemRectArray();
 			calcContentHeight();
-			createDataByScroll(newDataSource, true);
+			throttleCreateData(newDataSource, true);
 		}
-		
 	},
 	{ deep: true, immediate: true }
 );
