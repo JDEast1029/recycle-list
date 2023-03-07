@@ -12,16 +12,20 @@
 			:style="{height: `${contentHeight - translateHeight}px`, transform: `translateY(${translateHeight}px)`}"
 			class="rl-core__content"
 		>
+			<RecycleItem
+				@resize="handleHeaderRect"
+				@ready="handleHeaderRect"
+			>
+				<slot name="header" />
+			</RecycleItem>
 			<RecycleItem 
 				v-for="item in currentData"
 				:key="rowKey ? item[rowKey] : item"
 				:placeholder="item._isPlaceholder"
-				class="rl-core__item"
 				@resize="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
 				@ready="!item._isPlaceholder && handleItemRect($event, item.originIndex)"
 			>
-				<slot v-if="item._recycleHeader" name="header" />
-				<slot v-else :row="item" :index="item.originIndex - 1" />
+				<slot :row="item" :index="item.originIndex" />
 			</RecycleItem>
 			<slot name="footer" />
 		</div>
@@ -66,12 +70,9 @@ const scrollTop = ref(0); // 滚动距离
 const currentData = ref([]);
 const contentHeight = ref(0); // 内容的高度
 
+const headerHeight = ref(0);
 const translateHeight = computed(() => {
-	return currentData.value[0] ? currentData.value[0].offsetTop : 0;
-});
-
-const allDataSource = computed(() => {
-	return [HEADER_ITEM, ...props.dataSource];
+	return currentData.value[0] ? currentData.value[0].offsetTop - headerHeight.value : 0;
 });
 
 let containerHeight = 0; // 滚动容器高度
@@ -109,7 +110,7 @@ const getRenderCount = (index) => {
 	return count;
 };
 
-const createDataByScroll = (dataSource = allDataSource.value, force = false) => {
+const createDataByScroll = (dataSource = props.dataSource, force = false) => {
 	const index = getFirstInViewIndex();
 	const renderCount = Math.max(getRenderCount(index), DEFAULT_RENDER_COUNT);
 	currentData.value = dataSource.slice(index, index + renderCount).map((it, i) => {
@@ -121,8 +122,6 @@ const createDataByScroll = (dataSource = allDataSource.value, force = false) => 
 	});
 };
 
-
-
 // 容器的总高度，item未渲染的那defHeight计算
 const calcContentHeight = () => {
 	contentHeight.value = itemRectArray.reduce((pre, cur) => pre += cur.height, 0);
@@ -131,7 +130,7 @@ const calcContentHeight = () => {
 const rebuildItemRectArray = (index = 0) => {
 	for (let i = index; i < itemRectArray.length; i++) {
 		itemRectArray[i] = {
-			offsetTop: i === 0 ? 0 : itemRectArray[i - 1].offsetTop + itemRectArray[i - 1].height,
+			offsetTop: i === 0 ? (itemRectArray[0] || {}).offsetTop || 0 : itemRectArray[i - 1].offsetTop + itemRectArray[i - 1].height,
 			height: itemRectArray[i] ? itemRectArray[i].height : PLACEHOLDER_HEIGHT
 		};
 	}
@@ -172,6 +171,12 @@ const handleScrollThrottle = (e) => {
 	}
 };
 
+const handleHeaderRect = (itemRect) => {
+	headerHeight.value = itemRect.height;
+	rebuildItemRectArray();
+	calcContentHeight();
+};
+
 const handleItemRect = (itemRect, originIndex) => {
 	const { height } = itemRectArray[originIndex];
 	itemRectArray[originIndex] = itemRect;
@@ -182,13 +187,13 @@ const handleItemRect = (itemRect, originIndex) => {
 };
 
 watch(
-	() => allDataSource.value,
+	() => props.dataSource,
 	async (newDataSource) => {	
-		if (props.skeleton && newDataSource.length === 1) {
-			itemRectArray.length = PLACEHOLDER_COUNT + 1;
+		if (props.skeleton && newDataSource.length === 0) {
+			itemRectArray.length = PLACEHOLDER_COUNT;
 			rebuildItemRectArray();
 			calcContentHeight();
-			currentData.value = [...newDataSource, ...createPlaceholderData(PLACEHOLDER_COUNT, props.rowKey, 1)];
+			currentData.value = createPlaceholderData(PLACEHOLDER_COUNT, props.rowKey);
 		} else {
 			itemRectArray.length = newDataSource.length;
 			rebuildItemRectArray();
@@ -209,8 +214,5 @@ onMounted(() => {
 .rl-core {
 	height: 100%;
 	overflow-y: auto;
-	&__item {
-		
-	}
 }
 </style>
