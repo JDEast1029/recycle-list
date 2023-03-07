@@ -87,7 +87,7 @@ const itemRectArray = []; // item 距离顶部距离的集合
 let prevFirstInViewIndex = 0; 
 const getFirstInViewIndex = () => {
 	for (let i = 0; i < itemRectArray.length - 1; i++) {
-		const { offsetTop, height } = itemRectArray[i];
+		const { offsetTop = 0, height = 0 } = itemRectArray[i] || {};
 		// 第一种情况：item在顶部视图可见
 		// 第二种情况：item在顶部视图不可见，但后面item已经不够撑满容器了， 
 		if ((offsetTop <= scrollTop.value && offsetTop + height > scrollTop.value)
@@ -107,7 +107,7 @@ const getRenderCount = (index) => {
 	let count = 1;
 	index++;
 	while (renderHeight <= containerHeight && index < itemRectArray.length) {
-		renderHeight += itemRectArray[index].height;
+		renderHeight += height;
 		index++;
 		count++;
 	}
@@ -182,7 +182,7 @@ const handleHeaderRect = (itemRect) => {
 };
 
 const handleItemRect = (itemRect, originIndex) => {
-	const { height } = itemRectArray[originIndex];
+	const { height = 0 } = itemRectArray[originIndex] || {};
 	itemRectArray[originIndex] = itemRect;
 	rebuildItemRectArray(originIndex);
 	// 只需要加上 当前item与之前item的高度差即可，不需要遍历重新计算
