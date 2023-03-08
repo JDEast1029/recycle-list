@@ -4,9 +4,9 @@
 		class="v-demo"
 		height="100vh"
 	>
-		<template #header>
+		<!-- <template #header>
 			<div style="height: 100px; background: #ff0000;" />
-		</template>
+		</template> -->
 		<template #default="{ row, index}">
 			<div 
 				:style="{ background: `${index % 2 === 0 ? '#fff000' : '#ffffff'}`, height: `${row.height}px` }"
@@ -30,7 +30,7 @@ const loadData = (page, pageSize) => {
 				return {
 					id,
 					name: `第${id + 1}条数据`,
-					height: 100 + (id % 3) * 7
+					height: 10 + (Math.random() * 100 + 20)
 				};
 			});
 			r(data);

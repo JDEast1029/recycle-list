@@ -13,6 +13,11 @@ export const HEADER_ITEM = { _recycleHeader: true, originIndex: 0 };
 export const createPlaceholderData = (count: number, rowKey: 'id', startIndex = 0) => {
 	return Array.from(
 		{ length: count },
-		(it, index) => ({ [rowKey]: index, _isPlaceholder: true, originIndex: startIndex + index })
+		(it, index) => ({
+			[rowKey]: index,
+			_originIndex: startIndex + index,
+			_isPlaceholder: true,
+			_height: PLACEHOLDER_HEIGHT
+		})
 	);
 };
