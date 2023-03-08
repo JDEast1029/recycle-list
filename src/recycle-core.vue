@@ -6,7 +6,7 @@
 		@scroll="handleScrollThrottle"
 		@touchmove="handleTouchPrevent"
 	>
-		<div class="rl-core__tmp">{{ scrollTop }}</div>
+		<div v-if="showScrollTop" class="rl-core__tmp">{{ scrollTop }}</div>
 		<!-- 滚动到后面时出现空白，这样【内容高度】就不能是真实的，需要 减掉 偏移量【translateHeight】 -->
 		<div 
 			ref="contentRef"
@@ -65,6 +65,8 @@ const props = defineProps({
 	}
 });
 const emit = defineEmits(['scroll-to-bottom', 'scroll']);
+
+const showScrollTop = __DEV__; 
 
 const containerHeight = ref(0); // 滚动容器高度
 const containerRef = ref(null); // 滚动容器
