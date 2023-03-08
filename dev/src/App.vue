@@ -5,7 +5,9 @@
 		height="100vh"
 	>
 		<template #header>
-			<div style="height: 100px; background: #ff0000;" />
+			<div style="height: 100px; background: #ff0000;">
+				header
+			</div>
 		</template>
 		<template #default="{ row, index}">
 			<div 
@@ -15,6 +17,11 @@
 				{{ row.name }}; height: {{ row._height.toFixed(2) }}; offsetTop: {{ row._offsetTop }}
 			</div>
 		</template>
+		<template #empty>
+			<div style="height: 100px; background: #00ee77;">
+				empty
+			</div>
+		</template>
 	</RecycleList>
 </template>
 
@@ -22,7 +29,7 @@
 import { ref, onMounted } from 'vue';
 import RecycleList from 'recycle-list';
 
-const pageCount = 5;
+const pageCount = 3;
 const loadData = (page, pageSize) => {
 	return new Promise((r, j) => {
 		setTimeout(() => {
@@ -37,7 +44,7 @@ const loadData = (page, pageSize) => {
 			r({
 				data: {
 					list: data,
-					page: { current: page, total: pageCount, count: 5 }
+					page: { current: page, total: pageCount, count: 30 }
 				}
 			});
 		}, 1000);

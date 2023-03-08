@@ -19,17 +19,24 @@
 		>
 			<template #default="{ row, index }">
 				<slot v-if="row._recycleHeader" name="header" />
-				<slot v-else-if="!row._recycleHeader && !row._recycleLoading" :row="row" :index="index - 1" />
-				<slot v-else-if="isLoading && row._recycleLoading" name="pull-up">
-					<RecycleItem placeholder />
+				<slot v-else-if="!row._recycleHeader && !row._recycleFooter && !row._recycleEmpty" :row="row" :index="index - 1" />
+				<slot 
+					v-else-if="(isLoading || isEnd) && row._recycleFooter"
+					name="pull-up"
+					:loading="isLoading"
+					:end="isEnd"
+				>
+					<RecycleItem v-if="isLoading" placeholder />
+					<div v-else-if="isEnd">已全部加载</div>
 				</slot>
+				<slot v-else-if="isEmpty && row._recycleEmpty" name="empty" />
 			</template>
 		</RecycleCore>
 	</PullDown>
 </template>
 
 <script setup>
-import { onMounted, ref, reactive, onBeforeMount, computed, nextTick } from 'vue';
+import { onMounted, ref, reactive, onBeforeMount, computed, nextTick, watch } from 'vue';
 import { PLACEHOLDER_COUNT } from './constants.ts';
 import { createPlaceholderData } from './utils.ts';
 import RecycleCore from './recycle-core.vue';
@@ -78,10 +85,22 @@ const formatFetchResult = (res) => {
 	};
 };
 
-const addLoadingItem = () => {
+const addEmptyItem = () => {
 	const length = dataSource.value.length;
-	dataSource.value.splice(length, 0, { _recycleLoading: true, _originIndex: length });
+	dataSource.value.splice(length, 0, { _recycleEmpty: true, _originIndex: length });
 };
+
+const addFooterItem = () => {
+	const length = dataSource.value.length;
+	dataSource.value.splice(length, 0, { _recycleFooter: true, _originIndex: length });
+};
+
+watch(() => isEmpty.value, (newIsEmpty) => {
+	newIsEmpty && addEmptyItem();
+});
+watch(() => isEnd.value, (newIsEnd) => {
+	newIsEnd && addFooterItem();
+});
 
 const handleLoadData = async (refresh = false) => {
 	isLoading.value = true;
@@ -108,7 +127,7 @@ const handleLoadData = async (refresh = false) => {
 
 const handleScrollToBottom = async (e) => {
 	if (!isEmpty.value && !isEnd.value && !isLoading.value) {
-		addLoadingItem();
+		addFooterItem();
 		await handleLoadData();
 	}
 };
