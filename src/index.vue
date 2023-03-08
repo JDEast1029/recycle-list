@@ -1,5 +1,5 @@
 <template>
-	<!-- <PullDown 
+	<PullDown 
 		ref="pullDownRef"
 		:height="height"
 		:disabled="pullDownDisabled"
@@ -8,34 +8,40 @@
 	>
 		<template #pull-down="{ distance, status }">
 			<slot name="pull-down" :distance="distance" :status="status" />
-		</template> -->
-	<RecycleCore 
-		:data-source="dataSource"
-		:height="height"
-		:reach-bottom-distance="100"
-		:skeleton="skeleton"
-		@scroll-to-bottom="handleScrollToBottom"
-	>
-		<template #default="{ row, index }">
-			<slot v-if="row._recycleHeader" name="header" />
-			<slot v-else-if="!row._recycleHeader && !row._recycleLoading" :row="row" :index="index - 1" />
-			<slot v-else-if="isLoading && row._recycleLoading" name="pull-up">
-				<RecycleItem placeholder />
-			</slot>
 		</template>
-	</RecycleCore>
-	<!-- </PullDown> -->
+		<RecycleCore 
+			:data-source="dataSource"
+			:height="height"
+			:reach-bottom-distance="100"
+			:skeleton="skeleton"
+			@scroll-to-bottom="handleScrollToBottom"
+		>
+			<template #default="{ row, index }">
+				<slot v-if="row._recycleHeader" name="header" />
+				<slot v-else-if="!row._recycleHeader && !row._recycleLoading" :row="row" :index="index - 1" />
+				<slot v-else-if="isLoading && row._recycleLoading" name="pull-up">
+					<RecycleItem placeholder />
+				</slot>
+			</template>
+		</RecycleCore>
+	</PullDown>
 </template>
 
 <script setup>
 import { onMounted, ref, onBeforeMount } from 'vue';
-import { createPlaceholderData } from './constants.ts';
+import { PLACEHOLDER_COUNT } from './constants.ts';
+import { createPlaceholderData } from './utils.ts';
 import RecycleCore from './recycle-core.vue';
 import RecycleItem from './recycle-item.vue';
 import PullDown from './pull-down.vue';
 
 const props = defineProps({
 	...RecycleCore.props,
+	// 一开始加载时，整个页面是否展示骨架屏
+	skeleton: {
+		type: Boolean,
+		default: true
+	},
 	pageSize: {
 		type: Number,
 		default: 20
@@ -49,7 +55,7 @@ const props = defineProps({
 });
 
 const pullDownRef = ref(null);
-const dataSource = ref([]);
+const dataSource = ref([{ _recycleHeader: true }]);
 const isLoading = ref(false);
 
 let page = 1;
@@ -58,9 +64,8 @@ const loadData = async () => {
 	isLoading.value = true;
 	let data = await props.loadData(page, props.pageSize);
 	const startIndex = (page - 1) * props.pageSize;
-	data = startIndex === 0 ? [{ _recycleHeader: true }, ...data] : data;
 	dataSource.value.splice(
-		startIndex === 0 ? startIndex : startIndex + 1, 
+		startIndex + 1, 
 		props.pageSize,
 		...data
 	);
@@ -82,9 +87,16 @@ const handleScrollToBottom = async (e) => {
 };
 
 const handleReleaseUpdate = () => {
-	page = 1;
-	return loadData();
+	// page = 1;
+	// return loadData();
+	return true;
 };
+
+onBeforeMount(() => {
+	if (props.skeleton) {
+		dataSource.value.push(...createPlaceholderData(PLACEHOLDER_COUNT, props.rowKey));
+	}
+});
 
 onMounted(() => {
 	loadData();

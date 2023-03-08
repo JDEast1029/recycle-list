@@ -9,13 +9,13 @@ export const PULL_DOWN_STATUS = {
 	RELEASED: 3, // 释放后(获取数据)
 };
 
-export const createPlaceholderData = (count: number, rowKey: 'id', startIndex = 0) => {
+export const createPlaceholderData = (count: number, rowKey: 'id') => {
 	return Array.from(
 		{ length: count },
 		(it, index) => ({
 			[rowKey]: index,
-			_originIndex: startIndex + index,
-			_isPlaceholder: true,
+			options: { placeholder: true },
+			_originIndex: index,
 			_height: PLACEHOLDER_HEIGHT
 		})
 	);

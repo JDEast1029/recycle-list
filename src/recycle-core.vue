@@ -16,10 +16,10 @@
 			<RecycleItem 
 				v-for="(item, index) in currentData"
 				:key="rowKey ? item[rowKey] : index"
-				:placeholder="item._isPlaceholder"
+				v-bind="item.options"
 				class="rl-core__item"
-				@resize="!item._isPlaceholder && handleItemRect($event, item._originIndex)"
-				@ready="!item._isPlaceholder && handleItemRect($event, item._originIndex)"
+				@resize="handleItemRect($event, item._originIndex)"
+				@ready="handleItemRect($event, item._originIndex)"
 			>
 				<slot :row="item" :index="item._originIndex" />
 			</RecycleItem>
@@ -31,7 +31,7 @@
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
-import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, DEFAULT_RENDER_COUNT, CACHE_ITEM_COUNT, createPlaceholderData } from './constants.ts';
+import { PLACEHOLDER_HEIGHT, DEFAULT_RENDER_COUNT, CACHE_ITEM_COUNT } from './constants.ts';
 import RecycleItem from './recycle-item.vue';
 
 const props = defineProps({
@@ -50,11 +50,6 @@ const props = defineProps({
 	reachBottomDistance: {
 		type: Number,
 		default: 0
-	},
-	// 一开始加载时，整个页面是否展示骨架屏
-	skeleton: {
-		type: Boolean,
-		default: true
 	},
 	cols: {
 		type: Number,
@@ -202,17 +197,10 @@ const handleItemRect = (itemRect, originIndex) => {
 watch(
 	() => props.dataSource,
 	async (newDataSource) => {	
-		if (props.skeleton && newDataSource.length === 0) {
-			itemRectArray.length = PLACEHOLDER_COUNT;
-			rebuildItemRectArray();
-			calcContentHeight();
-			currentData.value = createPlaceholderData(PLACEHOLDER_COUNT, props.rowKey);
-		} else {
-			itemRectArray.length = newDataSource.length;
-			rebuildItemRectArray();
-			calcContentHeight();
-			throttleCreateRenderData(newDataSource, true);
-		}
+		itemRectArray.length = newDataSource.length;
+		rebuildItemRectArray();
+		calcContentHeight();
+		throttleCreateRenderData(newDataSource, true);
 	},
 	{ deep: true, immediate: true }
 );
