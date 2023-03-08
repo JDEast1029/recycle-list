@@ -120,6 +120,7 @@ const createRenderData = (dataSource = props.dataSource, force = false) => {
 		return {
 			...it,
 			_originIndex: index + i,
+			// 测试用来看的
 			_offsetTop: itemRectArray[index + i]?.offsetTop ?? 0,
 			_height: itemRectArray[index + i]?.height ?? 0,
 		};

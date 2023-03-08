@@ -70,9 +70,11 @@ const canRelease = computed(() => {
 });
 
 const handleTouchStart = (e) => {
+	if (props.disabled) return;
 	touchStart(e);
 };
 const handleTouchMove = (e) => {
+	if (props.disabled) return;
 	touchMove(e);
 	if (canRelease.value) {
 		status.value = PULL_DOWN_STATUS.RELEASABLE;

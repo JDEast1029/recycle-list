@@ -13,7 +13,10 @@
 			ref="coreRef"
 			:data-source="dataSource"
 			:height="height"
-			:reach-bottom-distance="100"
+			:reach-bottom-distance="reachBottomDistance"
+			:cols="cols"
+			:column-gap="columnGap"
+			:row-gap="rowGap"
 			:skeleton="skeleton"
 			@scroll-to-bottom="handleScrollToBottom"
 		>
