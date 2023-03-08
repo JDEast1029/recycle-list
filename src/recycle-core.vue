@@ -31,7 +31,7 @@
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
-import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, DEFAULT_RENDER_COUNT, CACHE_ITEM_COUNT, HEADER_ITEM, createPlaceholderData } from './constants.ts';
+import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, DEFAULT_RENDER_COUNT, CACHE_ITEM_COUNT, createPlaceholderData } from './constants.ts';
 import RecycleItem from './recycle-item.vue';
 
 const props = defineProps({

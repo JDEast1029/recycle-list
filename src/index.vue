@@ -16,17 +16,13 @@
 		:skeleton="skeleton"
 		@scroll-to-bottom="handleScrollToBottom"
 	>
-		<!-- <template #header>
-			<slot name="header" />
-		</template> -->
 		<template #default="{ row, index }">
-			<slot :row="row" :index="index" />
-		</template>
-		<!-- <template v-if="isLoading" #footer>
-			<slot name="pull-up">
+			<slot v-if="row._recycleHeader" name="header" />
+			<slot v-else-if="!row._recycleHeader && !row._recycleLoading" :row="row" :index="index - 1" />
+			<slot v-else-if="isLoading && row._recycleLoading" name="pull-up">
 				<RecycleItem placeholder />
 			</slot>
-		</template> -->
+		</template>
 	</RecycleCore>
 	<!-- </PullDown> -->
 </template>
@@ -60,21 +56,27 @@ let page = 1;
 
 const loadData = async () => {
 	isLoading.value = true;
-	const data = await props.loadData(page, props.pageSize);
+	let data = await props.loadData(page, props.pageSize);
+	const startIndex = (page - 1) * props.pageSize;
+	data = startIndex === 0 ? [{ _recycleHeader: true }, ...data] : data;
 	dataSource.value.splice(
-		(page - 1) * props.pageSize, 
+		startIndex === 0 ? startIndex : startIndex + 1, 
 		props.pageSize,
-		...data	
+		...data
 	);
-	page++;
 	isLoading.value = false;
 };
-
+const addLoadingItem = () => {
+	const length = dataSource.value.length;
+	dataSource.value.splice(length, 0, { _recycleLoading: true, _originIndex: length });
+};
 const handleScrollToBottom = async (e) => {
 	if (page <= 100 && !isLoading.value) {
 		page++;
 		isLoading.value = true;
+		addLoadingItem();
 		await loadData();
+
 		isLoading.value = false;
 	}
 };

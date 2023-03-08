@@ -9,8 +9,6 @@ export const PULL_DOWN_STATUS = {
 	RELEASED: 3, // 释放后(获取数据)
 };
 
-export const HEADER_ITEM = { _recycleHeader: true, originIndex: 0 };
-
 export const createPlaceholderData = (count: number, rowKey: 'id', startIndex = 0) => {
 	return Array.from(
 		{ length: count },
