@@ -1,6 +1,7 @@
 export const PLACEHOLDER_HEIGHT = 90;
 export const PLACEHOLDER_COUNT = 8; // 没有数据是placeholderItem的个数，占满全屏
 export const DEFAULT_RENDER_COUNT = 10; // 渲染条数
+export const CACHE_ITEM_COUNT = 3; // 在非视图区域缓存的渲染条数, 避免快速滑动时出现空白
 
 export const PULL_DOWN_STATUS = {
 	PULL_DOWN: 1, // 下拉

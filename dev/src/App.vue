@@ -12,7 +12,7 @@
 				:style="{ background: `${index % 2 === 0 ? '#fff000' : '#ffffff'}`, height: `${row.height}px` }"
 				style="color: #ff0000;"
 			>
-				{{ row.name }}
+				{{ row.name }}; height: {{ row._height.toFixed(2) }}; offsetTop: {{ row._offsetTop }}
 			</div>
 		</template>
 	</RecycleList>

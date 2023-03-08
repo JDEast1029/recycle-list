@@ -1,31 +1,34 @@
 <template>
-	<PullDown 
+	<!-- <PullDown 
 		ref="pullDownRef"
 		:height="height"
 		:disabled="pullDownDisabled"
 		:on-release="handleReleaseUpdate"
 		class="rl-main"
 	>
-		<RecycleCore 
-			:data-source="dataSource"
-			:height="height"
-			:reach-bottom-distance="100"
-			:skeleton="skeleton"
-			@scroll-to-bottom="handleScrollToBottom"
-		>
-			<template #header>
-				<slot name="header" />
-			</template>
-			<template #default="{ row, index }">
-				<slot :row="row" :index="index" />
-			</template>
-			<template v-if="isLoading" #footer>
-				<slot name="pull-up">
-					<RecycleItem placeholder />
-				</slot>
-			</template>
-		</RecycleCore>
-	</PullDown>
+		<template #pull-down="{ distance, status }">
+			<slot name="pull-down" :distance="distance" :status="status" />
+		</template> -->
+	<RecycleCore 
+		:data-source="dataSource"
+		:height="height"
+		:reach-bottom-distance="100"
+		:skeleton="skeleton"
+		@scroll-to-bottom="handleScrollToBottom"
+	>
+		<!-- <template #header>
+			<slot name="header" />
+		</template> -->
+		<template #default="{ row, index }">
+			<slot :row="row" :index="index" />
+		</template>
+		<!-- <template v-if="isLoading" #footer>
+			<slot name="pull-up">
+				<RecycleItem placeholder />
+			</slot>
+		</template> -->
+	</RecycleCore>
+	<!-- </PullDown> -->
 </template>
 
 <script setup>

@@ -6,33 +6,23 @@
 		@scroll="handleScrollThrottle"
 		@touchmove="handleTouchPrevent"
 	>
+		<div class="rl-core__tmp">{{ scrollTop }}</div>
 		<!-- 滚动到后面时出现空白，这样【内容高度】就不能是真实的，需要 减掉 偏移量【translateHeight】 -->
 		<div 
 			ref="contentRef"
 			:style="{height: `${contentHeight - translateHeight}px`, transform: `translateY(${translateHeight}px)`}"
 			class="rl-core__content"
 		>
-			<RecycleItem
-				v-if="scrollTop <= headerHeight"
-				class="rl-core__header"
-				@resize="handleHeaderRect"
-				@ready="handleHeaderRect"
+			<RecycleItem 
+				v-for="(item, index) in currentData"
+				:key="rowKey ? item[rowKey] : index"
+				:placeholder="item._isPlaceholder"
+				class="rl-core__item"
+				@resize="!item._isPlaceholder && handleItemRect($event, item._originIndex)"
+				@ready="!item._isPlaceholder && handleItemRect($event, item._originIndex)"
 			>
-				<slot name="header" />
+				<slot :row="item" :index="item._originIndex" />
 			</RecycleItem>
-			<div class="rl-core__list">
-				<RecycleItem 
-					v-for="item in currentData"
-					:key="rowKey ? item[rowKey] : item"
-					:placeholder="item._isPlaceholder"
-					class="rl-core__item"
-					@resize="!item._isPlaceholder && handleItemRect($event, item._originIndex)"
-					@ready="!item._isPlaceholder && handleItemRect($event, item._originIndex)"
-				>
-					<slot :row="item" :index="item._originIndex" />
-				</RecycleItem>
-			</div>
-			<slot name="footer" />
 		</div>
 	</div>
 </template>
@@ -41,7 +31,7 @@
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
-import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, DEFAULT_RENDER_COUNT, HEADER_ITEM, createPlaceholderData } from './constants.ts';
+import { PLACEHOLDER_HEIGHT, PLACEHOLDER_COUNT, DEFAULT_RENDER_COUNT, CACHE_ITEM_COUNT, HEADER_ITEM, createPlaceholderData } from './constants.ts';
 import RecycleItem from './recycle-item.vue';
 
 const props = defineProps({
@@ -87,9 +77,8 @@ const scrollTop = ref(0); // 滚动距离
 const currentData = ref([]);
 const contentHeight = ref(0); // 内容的高度
 
-const headerHeight = ref(0);
 const translateHeight = computed(() => {
-	return currentData.value[0] ? currentData.value[0]._offsetTop - headerHeight.value : 0;
+	return currentData.value[0] ? currentData.value[0]._offsetTop : 0;
 });
 
 let containerHeight = 0; // 滚动容器高度
@@ -120,7 +109,7 @@ const getRenderCount = (index) => {
 	let count = 1;
 	index++;
 	while (renderHeight <= containerHeight && index < itemRectArray.length) {
-		renderHeight += height;
+		renderHeight += itemRectArray[index].height;
 		index++;
 		count++;
 	}
@@ -130,7 +119,7 @@ const getRenderCount = (index) => {
 const createRenderData = (dataSource = props.dataSource, force = false) => {
 	const index = getFirstInViewIndex();
 	const renderCount = Math.max(getRenderCount(index), DEFAULT_RENDER_COUNT);
-	currentData.value = dataSource.slice(index, index + renderCount).map((it, i) => {
+	currentData.value = dataSource.slice(index, index + renderCount + CACHE_ITEM_COUNT).map((it, i) => {
 		return {
 			...it,
 			_originIndex: index + i,
@@ -149,7 +138,7 @@ const calcContentHeight = () => {
 const rebuildItemRectArray = (index = 0) => {
 	for (let i = index; i < itemRectArray.length; i++) {
 		itemRectArray[i] = {
-			offsetTop: i === 0 ? (itemRectArray[0] || {}).offsetTop || 0 : itemRectArray[i - 1].offsetTop + itemRectArray[i - 1].height,
+			offsetTop: i === 0 ? 0 : itemRectArray[i - 1].offsetTop + itemRectArray[i - 1].height,
 			height: itemRectArray[i] ? itemRectArray[i].height : PLACEHOLDER_HEIGHT
 		};
 	}
@@ -202,19 +191,12 @@ const handleScrollThrottle = (e) => {
 	}
 };
 
-const handleHeaderRect = (itemRect) => {
-	headerHeight.value = itemRect.height;
-	rebuildItemRectArray();
-	calcContentHeight();
-};
-
 const handleItemRect = (itemRect, originIndex) => {
 	const { height = 0 } = itemRectArray[originIndex] || {};
 	itemRectArray[originIndex] = itemRect;
 	rebuildItemRectArray(originIndex);
 	// 只需要加上 当前item与之前的高度差即可，不需要遍历重新计算
 	contentHeight.value = contentHeight.value + itemRect.height - height;
-	throttleCreateRenderData();
 };
 
 watch(
@@ -242,9 +224,18 @@ onMounted(() => {
 
 <style lang="less">
 .rl-core {
+	position: relative; // offsetTop已该节点为基准
 	height: 100%;
 	overflow-y: auto;
-	&__list {
+	&__tmp {
+		position: fixed;
+		top: 20px;
+		right: 20px;
+		z-index: 1;
+		background-color: #000000;
+		color: #fff;
+	}
+	&__content {
 	}
 	&__item {
 	}
