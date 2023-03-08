@@ -127,7 +127,7 @@ const getRenderCount = (index) => {
 	return count;
 };
 
-const createData = (dataSource = props.dataSource, force = false) => {
+const createRenderData = (dataSource = props.dataSource, force = false) => {
 	const index = getFirstInViewIndex();
 	const renderCount = Math.max(getRenderCount(index), DEFAULT_RENDER_COUNT);
 	currentData.value = dataSource.slice(index, index + renderCount).map((it, i) => {
@@ -156,10 +156,10 @@ const rebuildItemRectArray = (index = 0) => {
 };
 
 let dataTicking = false;
-const throttleCreateData = (dataSource, force) => {
+const throttleCreateRenderData = (dataSource, force) => {
 	if (!dataTicking) {
 		window.requestAnimationFrame(() => {
-			createData(dataSource, force);
+			createRenderData(dataSource, force);
 			dataTicking = false;
 		});
 		dataTicking = true;
@@ -188,7 +188,7 @@ const handleScroll = (e) => {
 		handleReachBottom(e);
 	}
 	prevScrollTop = scrollTop.value;
-	throttleCreateData();
+	throttleCreateRenderData();
 };
 
 let ticking = false; // 给滚动事件做节流
@@ -214,7 +214,7 @@ const handleItemRect = (itemRect, originIndex) => {
 	rebuildItemRectArray(originIndex);
 	// 只需要加上 当前item与之前的高度差即可，不需要遍历重新计算
 	contentHeight.value = contentHeight.value + itemRect.height - height;
-	throttleCreateData();
+	throttleCreateRenderData();
 };
 
 watch(
@@ -229,7 +229,7 @@ watch(
 			itemRectArray.length = newDataSource.length;
 			rebuildItemRectArray();
 			calcContentHeight();
-			throttleCreateData(newDataSource, true);
+			throttleCreateRenderData(newDataSource, true);
 		}
 	},
 	{ deep: true, immediate: true }
