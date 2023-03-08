@@ -10,6 +10,7 @@
 			<slot name="pull-down" :distance="distance" :status="status" />
 		</template>
 		<RecycleCore 
+			ref="coreRef"
 			:data-source="dataSource"
 			:height="height"
 			:reach-bottom-distance="100"
@@ -28,7 +29,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, onBeforeMount } from 'vue';
+import { onMounted, ref, reactive, onBeforeMount, computed, nextTick } from 'vue';
 import { PLACEHOLDER_COUNT } from './constants.ts';
 import { createPlaceholderData } from './utils.ts';
 import RecycleCore from './recycle-core.vue';
@@ -44,52 +45,76 @@ const props = defineProps({
 	},
 	pageSize: {
 		type: Number,
-		default: 20
+		default: 10
 	},
 	pullDownDisabled: Boolean,
 	loadData: {
 		type: Function,
 		required: true,
 		default: () => {}
-	}
+	},
+	// 处理返回的结果
+	format: Function
 });
 
 const pullDownRef = ref(null);
+const coreRef = ref(null);
 const dataSource = ref([{ _recycleHeader: true }]);
 const isLoading = ref(false);
+let pageInfo = ref({ current: 0, total: 0, count: 0 });
 
-let page = 1;
+const isEmpty = computed(() => {
+	return pageInfo.value.count === 0 && pageInfo.value.current === 1;
+});
+// 已全部加载
+const isEnd = computed(() => {
+	return pageInfo.value.current === pageInfo.value.total && pageInfo.value.current > 0;
+});
 
-const loadData = async () => {
-	isLoading.value = true;
-	let data = await props.loadData(page, props.pageSize);
-	const startIndex = (page - 1) * props.pageSize;
-	dataSource.value.splice(
-		startIndex + 1, 
-		props.pageSize,
-		...data
-	);
-	isLoading.value = false;
+const formatFetchResult = (res) => {
+	return {
+		data: res.data.list,
+		page: res.data.page, // { current: 0, total: 0, count: 0} 当前页数，总页数，总条数
+	};
 };
+
 const addLoadingItem = () => {
 	const length = dataSource.value.length;
 	dataSource.value.splice(length, 0, { _recycleLoading: true, _originIndex: length });
 };
-const handleScrollToBottom = async (e) => {
-	if (page <= 100 && !isLoading.value) {
-		page++;
-		isLoading.value = true;
-		addLoadingItem();
-		await loadData();
 
-		isLoading.value = false;
+const handleLoadData = async (refresh = false) => {
+	isLoading.value = true;
+	
+	let res = await props.loadData(refresh ? 1 : pageInfo.value.current + 1, props.pageSize);
+	const { data, page } = props.format ? props.format(res) : formatFetchResult(res);
+	pageInfo.value = page;
+
+	const startIndex = (pageInfo.value.current - 1) * props.pageSize;
+	dataSource.value.splice(
+		startIndex + 1, 
+		dataSource.value.length,
+		...data
+	);
+
+	isLoading.value = false;
+	
+	await nextTick();
+
+	if (coreRef.value.contentHeight <= coreRef.value.containerHeight) {
+		coreRef.value.reachBottom();
+	}
+};
+
+const handleScrollToBottom = async (e) => {
+	if (!isEmpty.value && !isEnd.value && !isLoading.value) {
+		addLoadingItem();
+		await handleLoadData();
 	}
 };
 
 const handleReleaseUpdate = () => {
-	// page = 1;
-	// return loadData();
-	return true;
+	return handleLoadData(true);
 };
 
 onBeforeMount(() => {
@@ -99,7 +124,7 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-	loadData();
+	handleLoadData();
 });
 </script>
 

@@ -22,6 +22,7 @@
 import { ref, onMounted } from 'vue';
 import RecycleList from 'recycle-list';
 
+const pageCount = 5;
 const loadData = (page, pageSize) => {
 	return new Promise((r, j) => {
 		setTimeout(() => {
@@ -33,7 +34,12 @@ const loadData = (page, pageSize) => {
 					height: 10 + (Math.random() * 100 + 20)
 				};
 			});
-			r(data);
+			r({
+				data: {
+					list: data,
+					page: { current: page, total: pageCount, count: 5 }
+				}
+			});
 		}, 1000);
 	});
 };

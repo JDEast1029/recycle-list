@@ -66,6 +66,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
+const containerHeight = ref(0); // 滚动容器高度
 const containerRef = ref(null); // 滚动容器
 const contentRef = ref(null); // 内容
 const scrollTop = ref(0); // 滚动距离
@@ -76,7 +77,6 @@ const translateHeight = computed(() => {
 	return currentData.value[0] ? currentData.value[0]._offsetTop : 0;
 });
 
-let containerHeight = 0; // 滚动容器高度
 
 const itemRectArray = []; // item 距离顶部距离的集合
 
@@ -87,7 +87,7 @@ const getFirstInViewIndex = () => {
 		// 第一种情况：item在顶部视图可见
 		// 第二种情况：item在顶部视图不可见，但后面item已经不够撑满容器了， 
 		if ((offsetTop <= scrollTop.value && offsetTop + height > scrollTop.value)
-			|| (offsetTop + height < scrollTop.value && offsetTop + height + containerHeight >= contentHeight.value)
+			|| (offsetTop + height < scrollTop.value && offsetTop + height + containerHeight.value >= contentHeight.value)
 		) {
 			prevFirstInViewIndex = i;
 			return i;
@@ -103,7 +103,7 @@ const getRenderCount = (index) => {
 	let renderHeight = height - (scrollTop.value - offsetTop);
 	let count = 1;
 	index++;
-	while (renderHeight <= containerHeight && index < itemRectArray.length) {
+	while (renderHeight <= containerHeight.value && index < itemRectArray.length) {
 		renderHeight += itemRectArray[index].height;
 		index++;
 		count++;
@@ -168,7 +168,7 @@ const handleScroll = (e) => {
 	}
 	scrollTop.value = e.target.scrollTop;
 	emit('scroll', scrollTop.value);
-	if (prevScrollTop < scrollTop.value && scrollTop.value + containerHeight + props.reachBottomDistance >= contentHeight.value) {
+	if (prevScrollTop < scrollTop.value && scrollTop.value + containerHeight.value + props.reachBottomDistance >= contentHeight.value) {
 		handleReachBottom(e);
 	}
 	prevScrollTop = scrollTop.value;
@@ -206,7 +206,13 @@ watch(
 );
 
 onMounted(() => {
-	containerHeight = containerRef.value.clientHeight;
+	containerHeight.value = containerRef.value.clientHeight;
+});
+
+defineExpose({
+	contentHeight,
+	containerHeight,
+	reachBottom: handleReachBottom
 });
 </script>
 
