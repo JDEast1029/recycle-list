@@ -18,6 +18,7 @@
 			:column-gap="columnGap"
 			:row-gap="rowGap"
 			:skeleton="skeleton"
+			:outside-count="outsideCount"
 			@scroll-to-bottom="handleScrollToBottom"
 		>
 			<template #default="{ row, index }">

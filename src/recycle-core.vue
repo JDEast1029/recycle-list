@@ -1,5 +1,6 @@
 <template>
 	<ResizeView 
+		ref="containerRef"
 		:style="{ height }"
 		class="rl-core"
 		@scroll="handleScrollThrottle"
@@ -32,7 +33,7 @@
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
-import { PLACEHOLDER_HEIGHT, DEFAULT_RENDER_COUNT, CACHE_ITEM_COUNT } from './constants.ts';
+import { PLACEHOLDER_HEIGHT } from './constants.ts';
 import RecycleItem from './recycle-item.vue';
 import ResizeView from './resize-view.vue';
 
@@ -44,6 +45,11 @@ const props = defineProps({
 	dataSource: {
 		type: Array,
 		default: () => ([])
+	},
+	// 视图之外渲染的条数，避免快速滑动时造成闪烁
+	outsideCount: {
+		type: Number,
+		default: 2
 	},
 	rowKey: {
 		type: String,
@@ -70,8 +76,9 @@ const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
 const showScrollTop = __DEV__; 
 
-const containerHeight = ref(0); // 滚动容器高度
+const containerRef = ref(null); // 内容
 const contentRef = ref(null); // 内容
+const containerHeight = ref(0); // 滚动容器高度
 const scrollTop = ref(0); // 滚动距离
 const currentData = ref([]);
 const contentHeight = ref(0); // 内容的高度
@@ -116,14 +123,17 @@ const getRenderCount = (index) => {
 
 const createRenderData = (dataSource = props.dataSource, force = false) => {
 	const index = getFirstInViewIndex();
-	const renderCount = Math.max(getRenderCount(index), DEFAULT_RENDER_COUNT);
-	currentData.value = dataSource.slice(index, index + renderCount + CACHE_ITEM_COUNT).map((it, i) => {
+	const startIndex = Math.max(0, index - props.outsideCount);
+	const renderCount = getRenderCount(index);
+	let endIndex = startIndex + renderCount;
+	endIndex = index - props.outsideCount < 0 ? endIndex + props.outsideCount : endIndex + 2 * props.outsideCount;
+	currentData.value = dataSource.slice(startIndex, endIndex).map((it, i) => {
 		return {
 			...it,
-			_originIndex: index + i,
+			_originIndex: startIndex + i,
 			// 测试用来看的
-			_offsetTop: itemRectArray[index + i]?.offsetTop ?? 0,
-			_height: itemRectArray[index + i]?.height ?? 0,
+			_offsetTop: itemRectArray[startIndex + i]?.offsetTop ?? 0,
+			_height: itemRectArray[startIndex + i]?.height ?? 0,
 		};
 	});
 };
@@ -213,10 +223,17 @@ const handleContainerRect = (containerRect) => {
 	containerHeight.value = containerRect.height;
 };
 
+// eslint-disable-next-line no-redeclare
+const _scrollTo = (value) => {
+	// 需要resizeView对外暴露scrollTo方法
+	// containerRef.value.
+};
+
 defineExpose({
 	contentHeight,
 	containerHeight,
-	reachBottom: handleReachBottom
+	reachBottom: handleReachBottom,
+	scrollTo: _scrollTo
 });
 </script>
 

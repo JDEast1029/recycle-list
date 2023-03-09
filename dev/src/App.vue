@@ -12,7 +12,7 @@
 		<template #default="{ row, index}">
 			<div 
 				:style="{ background: `${index % 2 === 0 ? '#fff000' : '#ffffff'}`, height: `${row.height}px` }"
-				style="color: #ff0000;"
+				style="color: #ff0000; display: flex; align-items: flex-end;"
 			>
 				{{ row.name }}; height: {{ row._height.toFixed(2) }}; offsetTop: {{ row._offsetTop }}
 			</div>
@@ -29,7 +29,7 @@
 import { ref, onMounted } from 'vue';
 import RecycleList from 'recycle-list';
 
-const pageCount = 3;
+const pageCount = 10;
 const loadData = (page, pageSize) => {
 	return new Promise((r, j) => {
 		setTimeout(() => {
