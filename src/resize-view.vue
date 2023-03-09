@@ -17,6 +17,13 @@ const getCurrentHeight = () => {
 	return resizeRef.value.clientHeight;
 };
 
+const sumChildrenHeight = () => {
+	return Array.from(resizeRef.value.children || []).reduce((pre, child) => {
+		pre += child.clientHeight;
+		return pre;
+	}, 0);
+};
+
 const handleMutationCallback = (mutationsList, observer) => {
 	if (getCurrentHeight() !== currentHeight) {
 		currentHeight = getCurrentHeight();
@@ -27,6 +34,7 @@ const handleMutationCallback = (mutationsList, observer) => {
 	}
 };
 
+// TODO: 监听节点高度的变化，需要用ResizeObserver处理
 onMounted(() => {
 	currentHeight = getCurrentHeight();
 	observerInstance = new MutationObserver(handleMutationCallback);
@@ -45,6 +53,10 @@ onUnmounted(() => {
 	observerInstance.disconnect();
 });
 
+defineExpose({
+	sumChildrenHeight,
+	el: resizeRef.value
+});
 </script>
 
 <style lang="less">

@@ -6,15 +6,3 @@ export const PULL_DOWN_STATUS = {
 	RELEASABLE: 2, // 可释放的
 	RELEASED: 3, // 释放后(获取数据)
 };
-
-export const createPlaceholderData = (count: number, rowKey: 'id') => {
-	return Array.from(
-		{ length: count },
-		(it, index) => ({
-			[rowKey]: index,
-			options: { placeholder: true },
-			_originIndex: index,
-			_height: PLACEHOLDER_HEIGHT
-		})
-	);
-};
