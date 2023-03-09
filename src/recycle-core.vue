@@ -1,10 +1,11 @@
 <template>
-	<div 
-		ref="containerRef"
+	<ResizeView 
 		:style="{ height }"
 		class="rl-core"
 		@scroll="handleScrollThrottle"
 		@touchmove="handleTouchPrevent"
+		@resize="handleContainerRect"
+		@ready="handleContainerRect"
 	>
 		<div v-if="showScrollTop" class="rl-core__tmp">{{ scrollTop }}</div>
 		<!-- 滚动到后面时出现空白，这样【内容高度】就不能是真实的，需要 减掉 偏移量【translateHeight】 -->
@@ -24,7 +25,7 @@
 				<slot :row="item" :index="item._originIndex" />
 			</RecycleItem>
 		</div>
-	</div>
+	</ResizeView>
 </template>
 
 <script setup>
@@ -33,6 +34,7 @@ import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
 import { PLACEHOLDER_HEIGHT, DEFAULT_RENDER_COUNT, CACHE_ITEM_COUNT } from './constants.ts';
 import RecycleItem from './recycle-item.vue';
+import ResizeView from './resize-view.vue';
 
 const props = defineProps({
 	height: {
@@ -69,7 +71,6 @@ const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 const showScrollTop = __DEV__; 
 
 const containerHeight = ref(0); // 滚动容器高度
-const containerRef = ref(null); // 滚动容器
 const contentRef = ref(null); // 内容
 const scrollTop = ref(0); // 滚动距离
 const currentData = ref([]);
@@ -208,9 +209,9 @@ watch(
 	{ deep: true, immediate: true }
 );
 
-onMounted(() => {
-	containerHeight.value = containerRef.value.clientHeight;
-});
+const handleContainerRect = (containerRect) => {
+	containerHeight.value = containerRect.height;
+};
 
 defineExpose({
 	contentHeight,

@@ -1,5 +1,10 @@
 <template>
-	<div ref="itemRef" class="rl-item">
+	<ResizeView 
+		ref="itemRef"
+		class="rl-item"
+		@resize="handleResize"
+		@ready="handleReady"
+	>
 		<slot v-if="!placeholder" />
 		<div v-else class="rl-item__skeleton">
 			<div class="rl-item__skeleton--content">
@@ -10,11 +15,12 @@
 				</ul>
 			</div>
 		</div>
-	</div>
+	</ResizeView>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import ResizeView from './resize-view.vue';
 
 const props = defineProps({
 	placeholder: Boolean
@@ -23,40 +29,14 @@ const props = defineProps({
 const emit = defineEmits(['ready', 'resize']);
 
 const itemRef = ref(null);
-let currentHeight = 0;
-let observerInstance = null;
 
-const getCurrentHeight = () => {
-	return itemRef.value.clientHeight;
+const handleResize = (viewRect) => {
+	emit('resize', viewRect);
 };
 
-const handleMutationCallback = (mutationsList, observer) => {
-	if (getCurrentHeight() !== currentHeight) {
-		currentHeight = getCurrentHeight();
-		emit('resize', {
-			offsetTop: itemRef.value.offsetTop,
-			height: currentHeight
-		});
-	}
+const handleReady = (viewRect) => {
+	emit('ready', viewRect);
 };
-
-onMounted(() => {
-	currentHeight = getCurrentHeight();
-	observerInstance = new MutationObserver(handleMutationCallback);
-	observerInstance.observe(itemRef.value, {
-		attributes: true, // 监听当前节点的属性变化
-		subtree: true, // 监听当前节点树，所有节点的属性变化
-		childList: true, // 监听当前节点中发生的节点的新增与删除
-	});
-	emit('ready', {
-		offsetTop: itemRef.value.offsetTop,
-		height: currentHeight
-	});
-});
-
-onUnmounted(() => {
-	observerInstance.disconnect();
-});
 
 </script>
 
