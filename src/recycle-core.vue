@@ -4,7 +4,10 @@
 		:style="{ height }"
 		class="rl-core"
 		@scroll="handleScrollThrottle"
-		@touchmove="handleTouchPrevent"
+		@touchstart="handleTouchStart"
+		@touchmove="handleTouchMove"
+		@touchend="handleTouchEnd"
+		@touchcancel="handleTouchEnd"
 		@resize="handleContainerRect"
 		@ready="handleContainerRect"
 	>
@@ -36,6 +39,7 @@ import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
 import { PLACEHOLDER_HEIGHT } from './constants.ts';
 import RecycleItem from './recycle-item.vue';
 import ResizeView from './resize-view.vue';
+import { useCoreTouch } from './hooks/use-core-touch.js';
 
 const props = defineProps({
 	height: {
@@ -87,8 +91,9 @@ const translateHeight = computed(() => {
 	return currentData.value[0] ? currentData.value[0]._offsetTop : 0;
 });
 
-
 const itemRectArray = []; // item 距离顶部距离的集合
+
+const { handleTouchStart, handleTouchMove, handleTouchEnd } = useCoreTouch(scrollTop);
 
 let prevFirstInViewIndex = 0; 
 const getFirstInViewIndex = () => {
@@ -164,12 +169,6 @@ const throttleCreateRenderData = (dataSource, force) => {
 	}
 };
 
-const handleTouchPrevent = (e) => {
-	if (scrollTop.value > 0) {
-		e.stopPropagation();
-	}
-};
-
 let prevScrollTop = 0;
 
 const handleReachBottom = debounce(function (e) {
@@ -180,7 +179,7 @@ const handleScroll = (e) => {
 	if (e.target.scrollTop === 0 && scrollTop.value !== 0) {
 		e.preventDefault();
 	}
-	scrollTop.value = e.target.scrollTop;
+	scrollTop.value = Math.max(0, e.target.scrollTop); // 移动端上会出现负数
 	emit('scroll', scrollTop.value);
 	if (prevScrollTop < scrollTop.value && scrollTop.value + containerHeight.value + props.reachBottomDistance >= contentHeight.value) {
 		handleReachBottom(e);
