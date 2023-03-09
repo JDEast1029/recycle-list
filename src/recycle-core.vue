@@ -225,15 +225,20 @@ const handleContainerRect = (containerRect) => {
 
 // eslint-disable-next-line no-redeclare
 const _scrollTo = (value) => {
-	// 需要resizeView对外暴露scrollTo方法
+	// TODO: 需要resizeView对外暴露scrollTo方法
 	// containerRef.value.
+};
+
+const _scrollToIndex = (index) => {
+	// TODO: 找到根据Index在itemRectArray中找到指定的元素，拿到offsetTop再去调用_scrollTo
 };
 
 defineExpose({
 	contentHeight,
 	containerHeight,
 	reachBottom: handleReachBottom,
-	scrollTo: _scrollTo
+	scrollTo: _scrollTo,
+	scrollToIndex: _scrollToIndex
 });
 </script>
 
