@@ -145,7 +145,7 @@ const createRenderData = (dataSource = props.dataSource, force = false) => {
 
 // 容器的总高度，item未渲染的那defHeight计算
 const calcContentHeight = () => {
-	contentHeight.value = itemRectArray.reduce((pre, cur) => pre += cur.height, 0);
+	contentHeight.value = Math.floor(itemRectArray.reduce((pre, cur) => pre += cur.height, 0));
 };
 
 // 重新计算item的offsetTop和Height，对于还没有渲染的Item给固定高度【PLACEHOLDER_HEIGHT】
@@ -204,7 +204,7 @@ const handleItemRect = (itemRect, originIndex) => {
 	itemRectArray[originIndex] = itemRect;
 	rebuildItemRectArray(originIndex);
 	// 只需要加上 当前item与之前的高度差即可，不需要遍历重新计算
-	contentHeight.value = contentHeight.value + itemRect.height - height;
+	contentHeight.value = Math.floor(contentHeight.value + itemRect.height - height);
 };
 
 watch(

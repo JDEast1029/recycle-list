@@ -12,7 +12,7 @@
 		<template #default="{ row, index}">
 			<div 
 				:style="{ background: `${index % 2 === 0 ? '#fff000' : '#ffffff'}`, height: `${row.height}px` }"
-				style="color: #ff0000; display: flex; align-items: flex-end;"
+				style="color: #ff0000;"
 			>
 				{{ row.name }}; height: {{ row._height.toFixed(2) }}; offsetTop: {{ row._offsetTop }}
 			</div>
@@ -44,7 +44,7 @@ const loadData = (page, pageSize) => {
 			r({
 				data: {
 					list: data,
-					page: { current: page, total: pageCount, count: 30 }
+					page: { current: page, total: pageCount, count: 100 }
 				}
 			});
 		}, 1000);

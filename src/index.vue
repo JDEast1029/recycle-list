@@ -49,6 +49,10 @@ import PullDown from './pull-down.vue';
 
 const props = defineProps({
 	...RecycleCore.props,
+	reachBottomDistance: {
+		type: Number,
+		default: 50
+	},
 	// 一开始加载时，整个页面是否展示骨架屏
 	skeleton: {
 		type: Boolean,
