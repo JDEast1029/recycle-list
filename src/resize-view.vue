@@ -24,33 +24,25 @@ const sumChildrenHeight = () => {
 	}, 0);
 };
 
-const handleMutationCallback = (mutationsList, observer) => {
-	if (getCurrentHeight() !== currentHeight) {
-		currentHeight = getCurrentHeight();
-		emit('resize', {
-			offsetTop: resizeRef.value.offsetTop,
-			height: currentHeight
-		});
-	}
+const handleResizeCallback = (entries, observer) => {
+	emit('resize', {
+		offsetTop: resizeRef.value.offsetTop,
+		height: entries[0].contentRect.height
+	});
 };
 
-// TODO: 监听节点高度的变化，需要用ResizeObserver处理
+let resizeObserver = null;
 onMounted(() => {
-	currentHeight = getCurrentHeight();
-	observerInstance = new MutationObserver(handleMutationCallback);
-	observerInstance.observe(resizeRef.value, {
-		attributes: true, // 监听当前节点的属性变化
-		subtree: true, // 监听当前节点树，所有节点的属性变化
-		childList: true, // 监听当前节点中发生的节点的新增与删除
-	});
+	resizeObserver = new ResizeObserver(handleResizeCallback);
+	resizeObserver.observe(resizeRef.value);
 	emit('ready', {
 		offsetTop: resizeRef.value.offsetTop,
-		height: currentHeight
+		height: resizeRef.value.clientHeight
 	});
 });
 
 onUnmounted(() => {
-	observerInstance.disconnect();
+	resizeObserver.disconnect();
 });
 
 defineExpose({
