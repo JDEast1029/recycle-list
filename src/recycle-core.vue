@@ -19,6 +19,13 @@
 			class="rl-core__content"
 		>
 			<ResizeView 
+				class="rl-core__header"
+				@resize="handleHeaderRect($event)"
+				@ready="handleHeaderRect($event)"
+			>
+				<slot name="header" />
+			</ResizeView>
+			<ResizeView 
 				v-for="(item, index) in currentData"
 				:key="rowKey ? item[rowKey] : index"
 				class="rl-core__item"
@@ -30,6 +37,7 @@
 				</slot>
 				<slot v-else :row="item" :index="item.$rl_originIndex" />
 			</ResizeView>
+			<slot name="footer" />
 		</div>
 	</ResizeView>
 </template>
@@ -38,7 +46,7 @@
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
-import { PLACEHOLDER$rl_height } from './constants.ts';
+import { PLACEHOLDER_HEIGHT } from './constants.ts';
 import ResizeView from './resize-view.vue';
 import Skeleton from './skeleton.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
@@ -93,6 +101,7 @@ const translateHeight = computed(() => {
 	return currentData.value[0] ? currentData.value[0].$rl_offsetTop : 0;
 });
 
+const headerHeight = ref(0); // header的高度
 const itemRectArray = []; // item 距离顶部距离的集合
 
 const { handleTouchStart, handleTouchMove, handleTouchEnd } = useCoreTouch(scrollTop);
@@ -138,7 +147,6 @@ const createRenderData = (dataSource = props.dataSource, force = false) => {
 		return {
 			...it,
 			$rl_originIndex: startIndex + i,
-			// 测试用来看的
 			$rl_offsetTop: itemRectArray[startIndex + i]?.offsetTop ?? 0,
 			$rl_height: itemRectArray[startIndex + i]?.height ?? 0,
 		};
@@ -147,7 +155,7 @@ const createRenderData = (dataSource = props.dataSource, force = false) => {
 
 // 容器的总高度，item未渲染的那defHeight计算
 const calcContentHeight = () => {
-	contentHeight.value = Math.floor(itemRectArray.reduce((pre, cur) => pre += cur.height, 0));
+	contentHeight.value = headerHeight.value + itemRectArray.reduce((pre, cur) => pre += cur.height, 0);
 };
 
 // 重新计算item的offsetTop和Height，对于还没有渲染的Item给固定高度【PLACEHOLDER_HEIGHT】
@@ -200,6 +208,13 @@ const handleScrollThrottle = (e) => {
 		ticking = true;
 	}
 };
+
+const handleHeaderRect = (itemRect) => {
+	console.log('itemRect', itemRect);
+	headerHeight.value = itemRect.height;
+	calcContentHeight();
+};
+const handleFooterRect = (itemRect) => {};
 
 const handleItemRect = (itemRect, originIndex) => {
 	const { height = 0 } = itemRectArray[originIndex] || {};

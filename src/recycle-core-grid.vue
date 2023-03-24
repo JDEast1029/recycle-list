@@ -37,7 +37,7 @@
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
-import { PLACEHOLDER$rl_height } from './constants.ts';
+import { PLACEHOLDER_HEIGHT } from './constants.ts';
 import RecycleItem from './recycle-item.vue';
 import ResizeView from './resize-view.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
@@ -156,12 +156,12 @@ const calcContentHeight = () => {
 	contentHeight.value = itemRectArray.reduce((pre, cur) => pre += cur.height, 0);
 };
 
-// 重新计算item的offsetTop和Height，对于还没有渲染的Item给固定高度【PLACEHOLDER$rl_height】
+// 重新计算item的offsetTop和Height，对于还没有渲染的Item给固定高度【PLACEHOLDER_HEIGHT】
 const rebuildItemRectArray = (index = 0) => {
 	for (let i = index; i < itemRectArray.length; i++) {
 		itemRectArray[i] = {
 			offsetTop: i === 0 ? 0 : itemRectArray[i - 1].offsetTop + itemRectArray[i - 1].height,
-			height: itemRectArray[i] ? itemRectArray[i].height : PLACEHOLDER$rl_height
+			height: itemRectArray[i] ? itemRectArray[i].height : PLACEHOLDER_HEIGHT
 		};
 	}
 };

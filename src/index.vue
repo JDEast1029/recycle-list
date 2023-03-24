@@ -21,11 +21,15 @@
 			:outside-count="outsideCount"
 			@scroll-to-bottom="handleScrollToBottom"
 		>
+			<template #header>
+				<slot name="header" />
+			</template>
 			<template #default="{ row, index }">
-				<slot v-if="row._recycleHeader" name="header" />
-				<slot v-else-if="!row._recycleHeader && !row._recycleFooter && !row._recycleEmpty" :row="row" :index="index - 1" />
+				<slot :row="row" :index="index - 1" />
+			</template>
+			<template #footer>
 				<slot 
-					v-else-if="(isLoading || isEnd) && row._recycleFooter"
+					v-if="isLoading || isEnd"
 					name="pull-up"
 					:loading="isLoading"
 					:end="isEnd"
@@ -33,9 +37,9 @@
 					<Skeleton v-if="isLoading" placeholder />
 					<div v-else-if="isEnd">已全部加载</div>
 				</slot>
-				<slot v-else-if="isEmpty && row._recycleEmpty" name="empty" />
 			</template>
 		</RecycleCore>
+		<slot v-if="isEmpty" name="empty" />
 	</PullDown>
 </template>
 
@@ -74,7 +78,7 @@ const props = defineProps({
 
 const pullDownRef = ref(null);
 const coreRef = ref(null);
-const dataSource = ref([{ _recycleHeader: true }]);
+const dataSource = ref([]);
 const isLoading = ref(false);
 let pageInfo = ref({ current: 0, total: 0, count: 0 });
 
@@ -93,23 +97,6 @@ const formatFetchResult = (res) => {
 	};
 };
 
-const addEmptyItem = () => {
-	const length = dataSource.value.length;
-	dataSource.value.splice(length, 0, { _recycleEmpty: true, $rl_originIndex: length });
-};
-
-const addFooterItem = () => {
-	const length = dataSource.value.length;
-	dataSource.value.splice(length, 0, { _recycleFooter: true, $rl_originIndex: length });
-};
-
-watch(() => isEmpty.value, (newIsEmpty) => {
-	newIsEmpty && addEmptyItem();
-});
-watch(() => isEnd.value, (newIsEnd) => {
-	newIsEnd && addFooterItem();
-});
-
 const handleLoadData = async (refresh = false) => {
 	isLoading.value = true;
 	
@@ -119,7 +106,7 @@ const handleLoadData = async (refresh = false) => {
 
 	const startIndex = (pageInfo.value.current - 1) * props.pageSize;
 	dataSource.value.splice(
-		startIndex + 1, 
+		startIndex, 
 		dataSource.value.length,
 		...data
 	);
@@ -135,7 +122,6 @@ const handleLoadData = async (refresh = false) => {
 
 const handleScrollToBottom = async (e) => {
 	if (!isEmpty.value && !isEnd.value && !isLoading.value) {
-		addFooterItem();
 		await handleLoadData();
 	}
 };
