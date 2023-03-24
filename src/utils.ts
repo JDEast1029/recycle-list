@@ -5,9 +5,9 @@ export const createPlaceholderData = (count: number, rowKey: 'id') => {
 		{ length: count },
 		(it, index) => ({
 			[rowKey]: index,
-			options: { placeholder: true },
-			_originIndex: index,
-			_height: PLACEHOLDER_HEIGHT
+			$rl_placeholder: true,
+			$rl_originIndex: index,
+			$rl_height: PLACEHOLDER_HEIGHT
 		})
 	);
 };

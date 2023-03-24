@@ -30,7 +30,7 @@
 					:loading="isLoading"
 					:end="isEnd"
 				>
-					<RecycleItem v-if="isLoading" placeholder />
+					<Skeleton v-if="isLoading" placeholder />
 					<div v-else-if="isEnd">已全部加载</div>
 				</slot>
 				<slot v-else-if="isEmpty && row._recycleEmpty" name="empty" />
@@ -44,7 +44,7 @@ import { onMounted, ref, reactive, onBeforeMount, computed, nextTick, watch } fr
 import { PLACEHOLDER_COUNT } from './constants.ts';
 import { createPlaceholderData } from './utils.ts';
 import RecycleCore from './recycle-core.vue';
-import RecycleItem from './recycle-item.vue';
+import Skeleton from './skeleton.vue';
 import PullDown from './pull-down.vue';
 
 const props = defineProps({
@@ -95,12 +95,12 @@ const formatFetchResult = (res) => {
 
 const addEmptyItem = () => {
 	const length = dataSource.value.length;
-	dataSource.value.splice(length, 0, { _recycleEmpty: true, _originIndex: length });
+	dataSource.value.splice(length, 0, { _recycleEmpty: true, $rl_originIndex: length });
 };
 
 const addFooterItem = () => {
 	const length = dataSource.value.length;
-	dataSource.value.splice(length, 0, { _recycleFooter: true, _originIndex: length });
+	dataSource.value.splice(length, 0, { _recycleFooter: true, $rl_originIndex: length });
 };
 
 watch(() => isEmpty.value, (newIsEmpty) => {

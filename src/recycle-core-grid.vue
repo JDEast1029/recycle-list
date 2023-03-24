@@ -15,21 +15,20 @@
 		<!-- 滚动到后面时出现空白，这样【内容高度】就不能是真实的，需要 减掉 偏移量【translateHeight】 -->
 		<div 
 			ref="contentRef"
-			:style="{height: `${contentHeight - translateHeight}px`, transform: `translateY(${translateHeight}px)`}"
+			:style="contentStyle"
 			class="rl-core__content"
 		>
-			<ResizeView 
+			<RecycleItem 
 				v-for="(item, index) in currentData"
 				:key="rowKey ? item[rowKey] : index"
+				:style="{ 'grid-row-end': `span ${item.$rl_height}` }"
+				v-bind="item.options"
 				class="rl-core__item"
 				@resize="handleItemRect($event, item.$rl_originIndex)"
 				@ready="handleItemRect($event, item.$rl_originIndex)"
 			>
-				<slot v-if="item.$rl_placeholder" name="skeleton">
-					<Skeleton />
-				</slot>
-				<slot v-else :row="item" :index="item.$rl_originIndex" />
-			</ResizeView>
+				<slot :row="item" :index="item.$rl_originIndex" />
+			</RecycleItem>
 		</div>
 	</ResizeView>
 </template>
@@ -39,8 +38,8 @@ import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
 import { PLACEHOLDER$rl_height } from './constants.ts';
+import RecycleItem from './recycle-item.vue';
 import ResizeView from './resize-view.vue';
-import Skeleton from './skeleton.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
 
 const props = defineProps({
@@ -91,6 +90,13 @@ const contentHeight = ref(0); // 内容的高度
 
 const translateHeight = computed(() => {
 	return currentData.value[0] ? currentData.value[0].$rl_offsetTop : 0;
+});
+const contentStyle = computed(() => {
+	return {
+		height: `${contentHeight.value - translateHeight.value}px`, 
+		transform: `translateY(${translateHeight.value}px)`,
+		'grid-template-columns': `repeat(${props.cols}, 1fr)`
+	};
 });
 
 const itemRectArray = []; // item 距离顶部距离的集合
@@ -147,15 +153,15 @@ const createRenderData = (dataSource = props.dataSource, force = false) => {
 
 // 容器的总高度，item未渲染的那defHeight计算
 const calcContentHeight = () => {
-	contentHeight.value = Math.floor(itemRectArray.reduce((pre, cur) => pre += cur.height, 0));
+	contentHeight.value = itemRectArray.reduce((pre, cur) => pre += cur.height, 0);
 };
 
-// 重新计算item的offsetTop和Height，对于还没有渲染的Item给固定高度【PLACEHOLDER_HEIGHT】
+// 重新计算item的offsetTop和Height，对于还没有渲染的Item给固定高度【PLACEHOLDER$rl_height】
 const rebuildItemRectArray = (index = 0) => {
 	for (let i = index; i < itemRectArray.length; i++) {
 		itemRectArray[i] = {
 			offsetTop: i === 0 ? 0 : itemRectArray[i - 1].offsetTop + itemRectArray[i - 1].height,
-			height: itemRectArray[i] ? itemRectArray[i].height : PLACEHOLDER_HEIGHT
+			height: itemRectArray[i] ? itemRectArray[i].height : PLACEHOLDER$rl_height
 		};
 	}
 };
@@ -206,7 +212,7 @@ const handleItemRect = (itemRect, originIndex) => {
 	itemRectArray[originIndex] = itemRect;
 	rebuildItemRectArray(originIndex);
 	// 只需要加上 当前item与之前的高度差即可，不需要遍历重新计算
-	contentHeight.value = Math.floor(contentHeight.value + itemRect.height - height);
+	contentHeight.value = contentHeight.value + itemRect.height - height;
 };
 
 watch(
@@ -224,22 +230,28 @@ const handleContainerRect = (containerRect) => {
 	containerHeight.value = containerRect.height;
 };
 
-// eslint-disable-next-line no-redeclare
-const $rl_scrollTo = (value) => {
+/**
+element.scrollTo({
+  top: 100,
+  left: 100,
+  behavior: "smooth",
+});
+ * @param {*} value 
+ */
+const _scrollTo = (value) => {
 	// TODO: 需要resizeView对外暴露scrollTo方法
-	// containerRef.value.
 };
 
-const $rl_scrollToIndex = (index) => {
-	// TODO: 找到根据Index在itemRectArray中找到指定的元素，拿到offsetTop再去调用$rl_scrollTo
+const _scrollToIndex = (index) => {
+	// TODO: 找到根据Index在itemRectArray中找到指定的元素，拿到offsetTop再去调用_scrollTo
 };
 
 defineExpose({
 	contentHeight,
 	containerHeight,
 	reachBottom: handleReachBottom,
-	scrollTo: $rl_scrollTo,
-	scrollToIndex: $rl_scrollToIndex
+	scrollTo: _scrollTo,
+	scrollToIndex: _scrollToIndex
 });
 </script>
 
@@ -257,8 +269,11 @@ defineExpose({
 		color: #fff;
 	}
 	&__content {
+		display: grid;
+		grid-auto-rows: 1px; 
 	}
 	&__item {
+		grid-row-start: auto;
 	}
 }
 </style>

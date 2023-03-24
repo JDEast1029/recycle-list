@@ -14,7 +14,7 @@
 				:style="{ background: `${index % 2 === 0 ? '#fff000' : '#ffffff'}`, height: `${row.height}px` }"
 				style="color: #ff0000;"
 			>
-				{{ row.name }}; _height: {{ row._height.toFixed(2) }}; _offsetTop: {{ row._offsetTop }}
+				{{ row.name }}; $rl_height: {{ row.$rl_height.toFixed(2) }}; $rl_offsetTop: {{ row.$rl_offsetTop }}
 			</div>
 		</template>
 		<template #empty>
