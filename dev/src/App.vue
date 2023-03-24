@@ -29,7 +29,7 @@
 import { ref, onMounted } from 'vue';
 import RecycleList from 'recycle-list';
 
-const pageCount = 10;
+const pageCount = 5;
 const loadData = (page, pageSize) => {
 	return new Promise((r, j) => {
 		setTimeout(() => {
@@ -38,13 +38,14 @@ const loadData = (page, pageSize) => {
 				return {
 					id,
 					name: `第${id + 1}条数据`,
-					height: 10 + (Math.random() * 100 + 20)
+					height: 40 + (Math.random() * 100 + 20)
+					// height: 180
 				};
 			});
 			r({
 				data: {
 					list: data,
-					page: { current: page, total: pageCount, count: 100 }
+					page: { current: page, total: pageCount, count: 50 }
 				}
 			});
 		}, 1000);

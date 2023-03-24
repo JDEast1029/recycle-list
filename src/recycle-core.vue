@@ -12,32 +12,41 @@
 		@ready="handleContainerRect"
 	>
 		<div v-if="showScrollTop" class="rl-core__tmp">{{ scrollTop }}</div>
-		<!-- 滚动到后面时出现空白，这样【内容高度】就不能是真实的，需要 减掉 偏移量【translateHeight】 -->
+		<!-- 双层设计，内层通过translateY来保证 目标item在预设范围内 -->
 		<div 
 			ref="contentRef"
-			:style="{height: `${contentHeight - translateHeight}px`, transform: `translateY(${translateHeight}px)`}"
+			:style="{height: `${contentHeight}px`}"
 			class="rl-core__content"
 		>
-			<ResizeView 
-				class="rl-core__header"
-				@resize="handleHeaderRect($event)"
-				@ready="handleHeaderRect($event)"
-			>
-				<slot name="header" />
-			</ResizeView>
-			<ResizeView 
-				v-for="(item, index) in currentData"
-				:key="rowKey ? item[rowKey] : index"
-				class="rl-core__item"
-				@resize="handleItemRect($event, item.$rl_originIndex)"
-				@ready="handleItemRect($event, item.$rl_originIndex)"
-			>
-				<slot v-if="item.$rl_placeholder" name="skeleton">
-					<Skeleton />
-				</slot>
-				<slot v-else :row="item" :index="item.$rl_originIndex" />
-			</ResizeView>
-			<slot name="footer" />
+			<div :style="{transform: `translateY(${translateHeight}px)`}">
+				<ResizeView 
+					:style="{ visibility: scrollTop <= headerHeight ? 'visible' : 'hidden' }"
+					class="rl-core__header"
+					@resize="handleHeaderRect($event)"
+					@ready="handleHeaderRect($event)"
+				>
+					<slot name="header" />
+				</ResizeView>
+				<ResizeView 
+					v-for="(item, index) in currentData"
+					:key="rowKey ? item[rowKey] : index"
+					class="rl-core__item"
+					@resize="handleItemRectResize($event, item.$rl_originIndex)"
+					@ready="handleItemRectReady($event, item.$rl_originIndex)"
+				>
+					<slot v-if="item.$rl_placeholder" name="skeleton">
+						<Skeleton />
+					</slot>
+					<slot v-else :row="item" :index="item.$rl_originIndex" />
+				</ResizeView>
+				<ResizeView 
+					class="rl-core__footer"
+					@resize="handleFooterRect($event)"
+					@ready="handleFooterRect($event)"
+				>
+					<slot name="footer" />
+				</ResizeView>
+			</div>
 		</div>
 	</ResizeView>
 </template>
@@ -50,6 +59,7 @@ import { PLACEHOLDER_HEIGHT } from './constants.ts';
 import ResizeView from './resize-view.vue';
 import Skeleton from './skeleton.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
+import { RectListManage } from './helper/rect-list-manage.ts';
 
 const props = defineProps({
 	height: {
@@ -88,6 +98,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
+const rectListManage = new RectListManage();
 const showScrollTop = __DEV__; 
 
 const containerRef = ref(null); // 内容
@@ -96,20 +107,21 @@ const containerHeight = ref(0); // 滚动容器高度
 const scrollTop = ref(0); // 滚动距离
 const currentData = ref([]);
 const contentHeight = ref(0); // 内容的高度
+const headerHeight = ref(0); // header的高度
+const footerHeight = ref(0); // header的高度
 
 const translateHeight = computed(() => {
 	return currentData.value[0] ? currentData.value[0].$rl_offsetTop : 0;
 });
 
-const headerHeight = ref(0); // header的高度
 const itemRectArray = []; // item 距离顶部距离的集合
 
 const { handleTouchStart, handleTouchMove, handleTouchEnd } = useCoreTouch(scrollTop);
 
 let prevFirstInViewIndex = 0; 
 const getFirstInViewIndex = () => {
-	for (let i = 0; i < itemRectArray.length - 1; i++) {
-		const { offsetTop = 0, height = 0 } = itemRectArray[i] || {};
+	for (let i = 0; i < rectListManage.length - 1; i++) {
+		const { offsetTop = 0, height = 0 } = rectListManage.data[i] || {};
 		// 第一种情况：item在顶部视图可见
 		// 第二种情况：item在顶部视图不可见，但后面item已经不够撑满容器了， 
 		if ((offsetTop <= scrollTop.value && offsetTop + height > scrollTop.value)
@@ -125,12 +137,12 @@ const getFirstInViewIndex = () => {
 
 // 计算撑满视图需要渲染的条数
 const getRenderCount = (index) => {
-	const { offsetTop = 0, height = 0 } = itemRectArray[index] || {};
+	const { offsetTop = 0, height = 0 } = rectListManage.data[index] || {};
 	let renderHeight = height - (scrollTop.value - offsetTop);
 	let count = 1;
 	index++;
-	while (renderHeight <= containerHeight.value && index < itemRectArray.length) {
-		renderHeight += itemRectArray[index].height;
+	while (renderHeight <= containerHeight.value && index < rectListManage.length) {
+		renderHeight += rectListManage.data[index].height;
 		index++;
 		count++;
 	}
@@ -147,25 +159,15 @@ const createRenderData = (dataSource = props.dataSource, force = false) => {
 		return {
 			...it,
 			$rl_originIndex: startIndex + i,
-			$rl_offsetTop: itemRectArray[startIndex + i]?.offsetTop ?? 0,
-			$rl_height: itemRectArray[startIndex + i]?.height ?? 0,
+			$rl_offsetTop: rectListManage.data[startIndex + i]?.offsetTop ?? 0,
+			$rl_height: rectListManage.data[startIndex + i]?.height ?? 0,
 		};
 	});
 };
 
 // 容器的总高度，item未渲染的那defHeight计算
 const calcContentHeight = () => {
-	contentHeight.value = headerHeight.value + itemRectArray.reduce((pre, cur) => pre += cur.height, 0);
-};
-
-// 重新计算item的offsetTop和Height，对于还没有渲染的Item给固定高度【PLACEHOLDER_HEIGHT】
-const rebuildItemRectArray = (index = 0) => {
-	for (let i = index; i < itemRectArray.length; i++) {
-		itemRectArray[i] = {
-			offsetTop: i === 0 ? 0 : itemRectArray[i - 1].offsetTop + itemRectArray[i - 1].height,
-			height: itemRectArray[i] ? itemRectArray[i].height : PLACEHOLDER_HEIGHT
-		};
-	}
+	contentHeight.value = headerHeight.value + rectListManage.totalHeight + footerHeight.value;
 };
 
 let dataTicking = false;
@@ -210,25 +212,30 @@ const handleScrollThrottle = (e) => {
 };
 
 const handleHeaderRect = (itemRect) => {
-	console.log('itemRect', itemRect);
 	headerHeight.value = itemRect.height;
 	calcContentHeight();
 };
-const handleFooterRect = (itemRect) => {};
 
-const handleItemRect = (itemRect, originIndex) => {
-	const { height = 0 } = itemRectArray[originIndex] || {};
-	itemRectArray[originIndex] = itemRect;
-	rebuildItemRectArray(originIndex);
-	// 只需要加上 当前item与之前的高度差即可，不需要遍历重新计算
-	contentHeight.value = Math.floor(contentHeight.value + itemRect.height - height);
+const handleFooterRect = (itemRect) => {
+	footerHeight.value = itemRect.height;
+	calcContentHeight();
+};
+
+const handleItemRectReady = (itemRect, originIndex) => {
+	rectListManage.updateItem(originIndex, itemRect);
+	calcContentHeight();
+};
+
+const handleItemRectResize = (itemRect, originIndex) => {
+	rectListManage.updateItem(originIndex, itemRect);
+	calcContentHeight();
+	throttleCreateRenderData();
 };
 
 watch(
 	() => props.dataSource,
 	async (newDataSource) => {	
-		itemRectArray.length = newDataSource.length;
-		rebuildItemRectArray();
+		rectListManage.updateRectList(newDataSource);
 		calcContentHeight();
 		throttleCreateRenderData(newDataSource, true);
 	},
@@ -272,6 +279,7 @@ defineExpose({
 		color: #fff;
 	}
 	&__content {
+		position: relative
 	}
 	&__item {
 	}

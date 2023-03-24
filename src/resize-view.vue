@@ -27,7 +27,7 @@ const sumChildrenHeight = () => {
 const handleResizeCallback = (entries, observer) => {
 	emit('resize', {
 		offsetTop: resizeRef.value.offsetTop,
-		height: entries[0].contentRect.height
+		height: Math.round(entries[0].contentRect.height)
 	});
 };
 
