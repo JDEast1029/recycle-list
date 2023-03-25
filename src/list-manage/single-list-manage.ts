@@ -5,7 +5,7 @@ import BasicListManage from './basic-list-manage';
 export class SingleListManage extends BasicListManage implements ListStrategy {
 	private prevFirstInViewIndex: number = 0;
 
-	createData(dataSource: any[], options: object) {
+	public createData(dataSource: any[], options: object) {
 		const { outsideCount = 0 } = this.props;
 		const index = this.getFirstInViewIndex(options);
 		const startIndex = Math.max(0, index - outsideCount);

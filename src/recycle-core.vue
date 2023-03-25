@@ -72,7 +72,6 @@ import Skeleton from './skeleton.vue';
 import RecycleGrid from './recycle-grid.vue';
 import RecycleGridItem from './recycle-grid-item.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
-import { SingleListManage } from './list-manage/single-list-manage.ts';
 import { ListManage } from './list-manage/index.ts';
 
 const props = defineProps({
@@ -112,7 +111,8 @@ const props = defineProps({
 });
 const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
-const listManage = new ListManage(new SingleListManage(props));
+const listManage = new ListManage(props);
+
 const showScrollTop = __DEV__; 
 
 const containerRef = ref(null); // 内容

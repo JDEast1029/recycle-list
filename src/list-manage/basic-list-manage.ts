@@ -13,10 +13,6 @@ export default class BasicListManage {
 		return this.rectList.length;
 	}
 
-	get data() {
-		return this.rectList;
-	}
-
 	findByIndex(index: number): RectItem {
 		return this.rectList[index] || { offsetTop: 0, height: 0 };
 	}

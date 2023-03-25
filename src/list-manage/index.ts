@@ -1,11 +1,15 @@
 import { ListStrategy } from './types';
+import { SingleListManage } from './single-list-manage.ts';
+import { MultiListManage } from './multi-list-manage.ts';
 
 export class ListManage {
 	private listManage: ListStrategy;
 
-	constructor(listManage?: ListStrategy) {
-		if (listManage) {
-			this.listManage = listManage;
+	constructor(props: object) {
+		if (props.cols === 1) {
+			this.listManage = new SingleListManage(props);
+		} else {
+			this.listManage = new MultiListManage(props);
 		}
 	}
 
