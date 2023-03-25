@@ -31,10 +31,16 @@ export class RectListManage {
 		}
 	}
 
+	calcTotalHeight() {
+		const { offsetTop = 0, height = 0 } = this.rectList[this.length - 1] || {};
+		this.totalHeight = offsetTop + height;
+	}
+
 	updateRectList(dataSource) {
 		const needAddLength = dataSource.length - this.length;
 		if (needAddLength < 0) {
 			this.rectList.splice(needAddLength);
+			this.calcTotalHeight();
 		} else if (needAddLength > 0) {
 			this.appendEmptyItems(this.length, needAddLength);
 		}
@@ -50,8 +56,7 @@ export class RectListManage {
 		if (index < this.length && originHeight !== itemRect.height) {
 			this.reCalcOffsetTop(index, itemRect.height);
 		}
-		const { offsetTop, height } = this.rectList[this.length - 1];
-		this.totalHeight = offsetTop + height;
+		this.calcTotalHeight();
 	}
 
 	[Symbol.iterator]() {

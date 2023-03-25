@@ -23,13 +23,14 @@
 		>
 			<template #header>
 				<slot name="header" />
+				<slot v-if="isEmpty" name="empty" />
 			</template>
 			<template #default="{ row, index }">
 				<slot :row="row" :index="index - 1" />
 			</template>
 			<template #footer>
 				<slot 
-					v-if="isLoading || isEnd"
+					v-if="(isLoading && !isRefreshing) || isEnd"
 					name="pull-up"
 					:loading="isLoading"
 					:end="isEnd"
@@ -39,7 +40,6 @@
 				</slot>
 			</template>
 		</RecycleCore>
-		<slot v-if="isEmpty" name="empty" />
 	</PullDown>
 </template>
 
@@ -80,6 +80,8 @@ const pullDownRef = ref(null);
 const coreRef = ref(null);
 const dataSource = ref([]);
 const isLoading = ref(false);
+const isRefreshing = ref(false);
+
 let pageInfo = ref({ current: 0, total: 0, count: 0 });
 
 const isEmpty = computed(() => {
@@ -126,8 +128,11 @@ const handleScrollToBottom = async (e) => {
 	}
 };
 
-const handleReleaseUpdate = () => {
-	return handleLoadData(true);
+const handleReleaseUpdate = async () => {
+	isRefreshing.value = true;
+	const data = await handleLoadData(true);
+	isRefreshing.value = false;
+	return data;
 };
 
 onBeforeMount(() => {
