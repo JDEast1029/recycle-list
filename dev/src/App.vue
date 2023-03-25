@@ -1,6 +1,8 @@
 <template>
 	<RecycleList 
 		:load-data="loadData"
+		:cols="1"
+		:column-gap="10"
 		class="v-demo"
 		height="100vh"
 	>
@@ -11,8 +13,8 @@
 		</template>
 		<template #default="{ row, index}">
 			<div 
-				:style="{ background: `${index % 2 === 0 ? '#fff000' : '#ffffff'}`, height: `${row.height}px` }"
-				style="color: #ff0000;"
+				:style="{ background: `${COLORS[index % 4]}`, height: `${row.height}px` }"
+				style="color: #fff;"
 			>
 				{{ row.name }}; $rl_height: {{ row.$rl_height.toFixed(2) }}; $rl_offsetTop: {{ row.$rl_offsetTop }}
 			</div>
@@ -29,7 +31,14 @@
 import { ref, onMounted } from 'vue';
 import RecycleList from 'recycle-list';
 
-const pageCount = 5;
+const COLORS = [
+	'#DA2A1C',
+	'#0072CD',
+	'#FFC72A',
+	'#02A3E0',
+	'#FE4F01'
+];
+const pageCount = 1;
 const loadData = (page, pageSize) => {
 	return new Promise((r, j) => {
 		setTimeout(() => {
@@ -38,14 +47,13 @@ const loadData = (page, pageSize) => {
 				return {
 					id,
 					name: `第${id + 1}条数据`,
-					height: 40 + (Math.random() * 100 + 20)
-					// height: 180
+					height: 40 + (Math.random() * 100 + 20),
 				};
 			});
 			r({
 				data: {
 					list: data,
-					page: { current: page, total: pageCount, count: 50 }
+					page: { current: page, total: pageCount, count: 10 }
 				}
 			});
 		}, 1000);

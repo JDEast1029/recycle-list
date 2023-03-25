@@ -26,7 +26,7 @@
 				<slot v-if="isEmpty" name="empty" />
 			</template>
 			<template #default="{ row, index }">
-				<slot :row="row" :index="index - 1" />
+				<slot :row="row" :index="index" />
 			</template>
 			<template #footer>
 				<slot 

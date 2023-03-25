@@ -1,18 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ESNext",
+    "useDefineForClassFields": true,
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "strict": true,
-    "declaration": true,
-    "noImplicitOverride": true,
-    "noUnusedLocals": true,
-    "esModuleInterop": true,
-    "useUnknownInCatchVariables": false,
+    "jsx": "preserve",
     "resolveJsonModule": true,
-    "noImplicitAny": false,  // 在表达式和声明上有隐含的 any类型时是否报错。
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "noEmit": true
   },
-  "include": ["src/**/*", "dev/**/*"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "exclude": [
     "node_modules",
     "examples/**/*"

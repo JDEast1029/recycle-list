@@ -2,6 +2,7 @@
 	<ResizeView 
 		ref="containerRef"
 		:style="{ height }"
+		:row-gap="20"
 		class="rl-core"
 		@scroll="handleScrollThrottle"
 		@touchstart="handleTouchStart"
@@ -27,18 +28,28 @@
 				>
 					<slot name="header" />
 				</ResizeView>
-				<ResizeView 
-					v-for="(item, index) in currentData"
-					:key="rowKey ? item[rowKey] : index"
-					class="rl-core__item"
-					@resize="handleItemRectResize($event, item.$rl_originIndex)"
-					@ready="handleItemRectReady($event, item.$rl_originIndex)"
+				<RecycleGrid 
+					:cols="cols"
+					:column-gap="columnGap"
+					:row-gap="rowGap"
 				>
-					<slot v-if="item.$rl_placeholder" name="skeleton">
-						<Skeleton />
-					</slot>
-					<slot v-else :row="item" :index="item.$rl_originIndex" />
-				</ResizeView>
+					<RecycleGridItem 
+						v-for="(item, index) in currentData"
+						:key="rowKey ? item[rowKey] : index"
+						:height="item.$rl_height"
+					>
+						<ResizeView 
+							class="rl-core__item"
+							@resize="handleItemRectResize($event, item.$rl_originIndex)"
+							@ready="handleItemRectReady($event, item.$rl_originIndex)"
+						>
+							<slot v-if="item.$rl_placeholder" name="skeleton">
+								<Skeleton />
+							</slot>
+							<slot v-else :row="item" :index="item.$rl_originIndex" />
+						</ResizeView>
+					</RecycleGridItem>
+				</RecycleGrid>
 				<ResizeView 
 					class="rl-core__footer"
 					@resize="handleFooterRect($event)"
@@ -58,8 +69,10 @@ import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
 import { PLACEHOLDER_HEIGHT } from './constants.ts';
 import ResizeView from './resize-view.vue';
 import Skeleton from './skeleton.vue';
+import RecycleGrid from './recycle-grid.vue';
+import RecycleGridItem from './recycle-grid-item.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
-import { RectListManage } from './helper/rect-list-manage.ts';
+import { SingleListManage } from './list-manage/single-list-manage.ts';
 
 const props = defineProps({
 	height: {
@@ -98,7 +111,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
-const rectListManage = new RectListManage();
+const rectListManage = new SingleListManage();
 const showScrollTop = __DEV__; 
 
 const containerRef = ref(null); // 内容
@@ -149,7 +162,7 @@ const getRenderCount = (index) => {
 	return count;
 };
 
-const createRenderData = (dataSource = props.dataSource, force = false) => {
+const createRenderData = (dataSource = props.dataSource) => {
 	const index = getFirstInViewIndex();
 	const startIndex = Math.max(0, index - props.outsideCount);
 	const renderCount = getRenderCount(index);
