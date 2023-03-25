@@ -3,6 +3,7 @@
 		:load-data="loadData"
 		:cols="1"
 		:column-gap="10"
+		:row-gap="10"
 		class="v-demo"
 		height="100vh"
 	>

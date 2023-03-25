@@ -42,10 +42,7 @@ provide('parentProps', readonly({
 <style lang="less">
 .rl-multi-grid {
 	display: grid;
-	grid-auto-rows: 1px;
 	&.is-horizontal {
-		grid-auto-columns: 1px;
-		grid-auto-rows: unset;
 		grid-auto-flow: column; // 放置顺序是"先列后行"
 	}
 }

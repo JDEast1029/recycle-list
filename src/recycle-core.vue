@@ -36,8 +36,8 @@
 					<RecycleGridItem 
 						v-for="(item, index) in currentData"
 						:key="rowKey ? item[rowKey] : index"
-						:height="item.$rl_height"
 					>
+						<!-- v-bind="item.gridLayout" -->
 						<ResizeView 
 							class="rl-core__item"
 							@resize="handleItemRectResize($event, item.$rl_originIndex)"

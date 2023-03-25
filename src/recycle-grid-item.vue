@@ -1,7 +1,7 @@
 <template>
 	<div 
 		v-if="parentProps.cols > 1"
-		:style="{ 'grid-row-end': `span ${height}` }"
+		:style="{ 'grid-row-start': gridRowStart, 'grid-row-end': gridRowEnd }"
 		:class="{ 'is-horizontal': parentProps.horizontal }"
 		class="rl-grid-item"
 	>
@@ -14,7 +14,10 @@
 import { inject } from 'vue';
 
 const props = defineProps({
-	height: Number
+	gridRowStart: Number,
+	gridRowEnd: Number,
+	// gridColumnStart: Number,
+	// gridColumnEnd: Number,
 });
 
 const parentProps = inject('parentProps');
@@ -22,10 +25,9 @@ const parentProps = inject('parentProps');
 
 <style lang="less">
 .rl-grid-item {
-	grid-row-start: auto;
 	&.is-horizontal {
-		grid-column-start: auto;
-		grid-row-start: unset;
+		// grid-column-start: auto;
+		// grid-row-start: unset;
 	} 
 }
 </style>
