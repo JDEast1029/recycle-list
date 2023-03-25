@@ -5,12 +5,13 @@ import BasicListManage from './basic-list-manage';
 export class SingleListManage extends BasicListManage implements ListStrategy {
 	private prevFirstInViewIndex: number = 0;
 
-	createData(dataSource: any[], force = false) {
-		const index = this.getFirstInViewIndex();
-		const startIndex = Math.max(0, index - props.outsideCount);
-		const renderCount = this.getRenderCount(index);
+	createData(dataSource: any[], options: object) {
+		const { outsideCount = 0 } = this.props;
+		const index = this.getFirstInViewIndex(options);
+		const startIndex = Math.max(0, index - outsideCount);
+		const renderCount = this.getRenderCount(index, options);
 		let endIndex = startIndex + renderCount;
-		endIndex = index - props.outsideCount < 0 ? endIndex + props.outsideCount : endIndex + 2 * props.outsideCount;
+		endIndex = index - outsideCount < 0 ? endIndex + outsideCount : endIndex + 2 * outsideCount;
 		return dataSource.slice(startIndex, endIndex).map((it, i) => {
 			return {
 				...it,
@@ -44,13 +45,14 @@ export class SingleListManage extends BasicListManage implements ListStrategy {
 		this.calcTotalHeight();
 	}
 
-	private getFirstInViewIndex() {
+	private getFirstInViewIndex(options: object) {
+		const { scrollTop, containerHeight, contentHeight } = options;
 		for (let i = 0; i < this.rectList.length - 1; i++) {
 			const { offsetTop = 0, height = 0 } = this.rectList[i] || {};
 			// 第一种情况：item在顶部视图可见
 			// 第二种情况：item在顶部视图不可见，但后面item已经不够撑满容器了， 
 			if ((offsetTop <= scrollTop && offsetTop + height > scrollTop)
-				|| (offsetTop + height < scrollTop && offsetTop + height + containerHeight.value >= contentHeight.value)
+				|| (offsetTop + height < scrollTop && offsetTop + height + containerHeight >= contentHeight)
 			) {
 				this.prevFirstInViewIndex = i;
 				return i;
@@ -61,12 +63,13 @@ export class SingleListManage extends BasicListManage implements ListStrategy {
 	}
 
 	// 计算撑满视图需要渲染的条数
-	private getRenderCount(index: number) {
+	private getRenderCount(index: number, options: object) {
+		const { containerHeight, scrollTop } = options;
 		const { offsetTop = 0, height = 0 } = this.rectList[index] || {};
 		let renderHeight = height - (scrollTop - offsetTop);
 		let count = 1;
 		index++;
-		while (renderHeight <= containerHeight.value && index < this.length) {
+		while (renderHeight <= containerHeight && index < this.length) {
 			renderHeight += this.rectList[index].height;
 			index++;
 			count++;

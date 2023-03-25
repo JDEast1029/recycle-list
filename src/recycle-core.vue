@@ -73,6 +73,7 @@ import RecycleGrid from './recycle-grid.vue';
 import RecycleGridItem from './recycle-grid-item.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
 import { SingleListManage } from './list-manage/single-list-manage.ts';
+import { ListManage } from './list-manage/index.ts';
 
 const props = defineProps({
 	height: {
@@ -111,7 +112,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
-const rectListManage = new SingleListManage();
+const listManage = new ListManage(new SingleListManage(props));
 const showScrollTop = __DEV__; 
 
 const containerRef = ref(null); // 内容
@@ -131,63 +132,20 @@ const itemRectArray = []; // item 距离顶部距离的集合
 
 const { handleTouchStart, handleTouchMove, handleTouchEnd } = useCoreTouch(scrollTop);
 
-let prevFirstInViewIndex = 0; 
-const getFirstInViewIndex = () => {
-	for (let i = 0; i < rectListManage.length - 1; i++) {
-		const { offsetTop = 0, height = 0 } = rectListManage.data[i] || {};
-		// 第一种情况：item在顶部视图可见
-		// 第二种情况：item在顶部视图不可见，但后面item已经不够撑满容器了， 
-		if ((offsetTop <= scrollTop.value && offsetTop + height > scrollTop.value)
-			|| (offsetTop + height < scrollTop.value && offsetTop + height + containerHeight.value >= contentHeight.value)
-		) {
-			prevFirstInViewIndex = i;
-			return i;
-		}
-	}
-	// 避免直接返回0，通过记录上一次的index，当条件不足时应当沿用上一次的index
-	return prevFirstInViewIndex;
-};
-
-// 计算撑满视图需要渲染的条数
-const getRenderCount = (index) => {
-	const { offsetTop = 0, height = 0 } = rectListManage.data[index] || {};
-	let renderHeight = height - (scrollTop.value - offsetTop);
-	let count = 1;
-	index++;
-	while (renderHeight <= containerHeight.value && index < rectListManage.length) {
-		renderHeight += rectListManage.data[index].height;
-		index++;
-		count++;
-	}
-	return count;
-};
-
-const createRenderData = (dataSource = props.dataSource) => {
-	const index = getFirstInViewIndex();
-	const startIndex = Math.max(0, index - props.outsideCount);
-	const renderCount = getRenderCount(index);
-	let endIndex = startIndex + renderCount;
-	endIndex = index - props.outsideCount < 0 ? endIndex + props.outsideCount : endIndex + 2 * props.outsideCount;
-	currentData.value = dataSource.slice(startIndex, endIndex).map((it, i) => {
-		return {
-			...it,
-			$rl_originIndex: startIndex + i,
-			$rl_offsetTop: rectListManage.data[startIndex + i]?.offsetTop ?? 0,
-			$rl_height: rectListManage.data[startIndex + i]?.height ?? 0,
-		};
-	});
-};
-
 // 容器的总高度，item未渲染的那defHeight计算
 const calcContentHeight = () => {
-	contentHeight.value = headerHeight.value + rectListManage.totalHeight + footerHeight.value;
+	contentHeight.value = headerHeight.value + listManage.totalHeight + footerHeight.value;
 };
 
 let dataTicking = false;
-const throttleCreateRenderData = (dataSource, force) => {
+const throttleCreateRenderData = (dataSource = props.dataSource) => {
 	if (!dataTicking) {
 		window.requestAnimationFrame(() => {
-			createRenderData(dataSource, force);
+			currentData.value = listManage.createData(dataSource, {
+				scrollTop: scrollTop.value, 
+				containerHeight: containerHeight.value, 
+				contentHeight: contentHeight.value
+			});
 			dataTicking = false;
 		});
 		dataTicking = true;
@@ -235,12 +193,12 @@ const handleFooterRect = (itemRect) => {
 };
 
 const handleItemRectReady = (itemRect, originIndex) => {
-	rectListManage.updateItem(originIndex, itemRect);
+	listManage.updateItem(originIndex, itemRect);
 	calcContentHeight();
 };
 
 const handleItemRectResize = (itemRect, originIndex) => {
-	rectListManage.updateItem(originIndex, itemRect);
+	listManage.updateItem(originIndex, itemRect);
 	calcContentHeight();
 	throttleCreateRenderData();
 };
@@ -248,9 +206,9 @@ const handleItemRectResize = (itemRect, originIndex) => {
 watch(
 	() => props.dataSource,
 	async (newDataSource) => {	
-		rectListManage.updateRectList(newDataSource);
+		listManage.updateData(newDataSource);
 		calcContentHeight();
-		throttleCreateRenderData(newDataSource, true);
+		throttleCreateRenderData(newDataSource);
 	},
 	{ deep: true, immediate: true }
 );

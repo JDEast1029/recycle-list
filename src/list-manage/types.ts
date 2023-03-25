@@ -8,7 +8,5 @@ export interface ListStrategy {
 	totalHeight: number;
 	updateRectList: (dataSource: any[]) => void;
 	updateItem: (index: number, rectItem: RectItem) => void;
-	appendEmptyItems: (start: number, end: number) => void;
-	reCalcOffsetTop: (start: number, end: number) => void
-	calcTotalHeight: () => void;
+	createData: (dataSource: any[]) => any[];
 }

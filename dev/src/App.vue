@@ -39,7 +39,7 @@ const COLORS = [
 	'#02A3E0',
 	'#FE4F01'
 ];
-const pageCount = 1;
+const pageCount = 5;
 const loadData = (page, pageSize) => {
 	return new Promise((r, j) => {
 		setTimeout(() => {
@@ -54,7 +54,7 @@ const loadData = (page, pageSize) => {
 			r({
 				data: {
 					list: data,
-					page: { current: page, total: pageCount, count: 10 }
+					page: { current: page, total: pageCount, count: 50 }
 				}
 			});
 		}, 1000);
