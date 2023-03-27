@@ -32,23 +32,21 @@
 					:cols="cols"
 					:column-gap="columnGap"
 					:row-gap="rowGap"
+					:data-source="currentData"
+					:row-key="rowKey"
 				>
-					<RecycleGridItem 
-						v-for="(item, index) in currentData"
-						:key="rowKey ? item[rowKey] : index"
-					>
-						<!-- v-bind="item.gridLayout" -->
+					<template #default="{ row }">
 						<ResizeView 
 							class="rl-core__item"
-							@resize="handleItemRectResize($event, item.$rl_originIndex)"
-							@ready="handleItemRectReady($event, item.$rl_originIndex)"
+							@resize="handleItemRectResize($event, row.$rl_originIndex)"
+							@ready="handleItemRectReady($event, row.$rl_originIndex)"
 						>
-							<slot v-if="item.$rl_placeholder" name="skeleton">
+							<slot v-if="row.$rl_placeholder" name="skeleton">
 								<Skeleton />
 							</slot>
-							<slot v-else :row="item" :index="item.$rl_originIndex" />
+							<slot v-else :row="row" :index="row.$rl_originIndex" />
 						</ResizeView>
-					</RecycleGridItem>
+					</template>
 				</RecycleGrid>
 				<ResizeView 
 					class="rl-core__footer"
@@ -70,7 +68,6 @@ import { PLACEHOLDER_HEIGHT } from './constants.ts';
 import ResizeView from './resize-view.vue';
 import Skeleton from './skeleton.vue';
 import RecycleGrid from './recycle-grid.vue';
-import RecycleGridItem from './recycle-grid-item.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
 import { ListManage } from './list-manage/index.ts';
 

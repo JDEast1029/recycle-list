@@ -40,7 +40,7 @@ export class SingleListManage extends BasicListManage implements ListStrategy {
 			offsetTop: this.rectList[index] ? this.rectList[index].offsetTop : 0,
 		};
 		if (index < this.length && originHeight !== rectItem.height) {
-			this.reCalcOffsetTop(index, rectItem.height);
+			this.reCalcOffsetTop(index);
 		}
 		this.calcTotalHeight();
 	}
@@ -77,12 +77,12 @@ export class SingleListManage extends BasicListManage implements ListStrategy {
 		return count;
 	}
 
-	private reCalcOffsetTop(start, height) {
+	private reCalcOffsetTop(start) {
 		for (let i = start; i < this.rectList.length; i++) {
 			const { offsetTop: prevOffsetTop = 0, height: prevHeight = 0 } = this.rectList[i - 1] || {};
 			this.rectList[i] = {
+				...this.rectList[i],
 				offsetTop: prevOffsetTop + prevHeight,
-				height,
 			};
 		}
 	}

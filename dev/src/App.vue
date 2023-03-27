@@ -1,9 +1,10 @@
 <template>
 	<RecycleList 
 		:load-data="loadData"
-		:cols="1"
+		:cols="2"
 		:column-gap="10"
 		:row-gap="10"
+		:page-size="10"
 		class="v-demo"
 		height="100vh"
 	>
@@ -17,7 +18,7 @@
 				:style="{ background: `${COLORS[index % 4]}`, height: `${row.height}px` }"
 				style="color: #fff;"
 			>
-				{{ row.name }}; $rl_height: {{ row.$rl_height.toFixed(2) }}; $rl_offsetTop: {{ row.$rl_offsetTop }}
+				{{ row.name }}; $rl_height: {{ row.$rl_height }}; $rl_offsetTop: {{ row.$rl_offsetTop }}
 			</div>
 		</template>
 		<template #empty>
@@ -39,7 +40,8 @@ const COLORS = [
 	'#02A3E0',
 	'#FE4F01'
 ];
-const pageCount = 5;
+const height = [86, 122, 149, 94, 83, 127, 85, 159, 71, 158];
+const pageCount = 1;
 const loadData = (page, pageSize) => {
 	return new Promise((r, j) => {
 		setTimeout(() => {
@@ -48,13 +50,14 @@ const loadData = (page, pageSize) => {
 				return {
 					id,
 					name: `第${id + 1}条数据`,
-					height: 40 + (Math.random() * 100 + 20),
+					height: 40 + parseFloat((Math.random() * 100 + 20).toFixed(2)),
+					// height: height[index]
 				};
 			});
 			r({
 				data: {
 					list: data,
-					page: { current: page, total: pageCount, count: 50 }
+					page: { current: page, total: pageCount, count: 10 }
 				}
 			});
 		}, 1000);

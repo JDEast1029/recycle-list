@@ -1,23 +1,27 @@
 <template>
 	<div 
 		v-if="cols > 1"
-		:style="{ 
-			'grid-row-gap': `${rowGap}px`, 
-			'grid-column-gap': `${columnGap}px`,
-			'grid-template-columns': `repeat(${cols}, 1fr)`
-		}"
 		:class="{ 'is-horizontal': horizontal }"
 		class="rl-multi-grid"
 	>
-		<slot />
+		<div v-for="(col, index) in cols" :key="`$rl_col_${index}`" class="rl-multi-grid__col">
+			<slot v-for="item in dataSource[index]" :key="item[rowKey]" :row="item" />
+		</div>
 	</div>
-	<slot v-else />
+	<div v-else class="rl-single-grid">
+		<slot v-for="item in dataSource" :key="item[rowKey]" :row="item" />
+	</div>
 </template>
 
 <script setup>
 import { provide, readonly } from 'vue';
 
 const props = defineProps({
+	dataSource: {
+		type: Array,
+		default: () => ([])
+	},
+	rowKey: String,
 	cols: {
 		type: Number,
 		default: 1
@@ -32,18 +36,19 @@ const props = defineProps({
 	},
 	horizontal: Boolean
 });
-
-provide('parentProps', readonly({
-	cols: props.cols,
-	horizontal: props.horizontal,
-}));
 </script>
 
 <style lang="less">
+.rl-single-grid {
+	position: relative;
+}
 .rl-multi-grid {
-	display: grid;
+	position: relative;
+	display: flex;
+	&__col {
+		flex: 1
+	}
 	&.is-horizontal {
-		grid-auto-flow: column; // 放置顺序是"先列后行"
 	}
 }
 </style>
