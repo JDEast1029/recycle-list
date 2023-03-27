@@ -8,16 +8,16 @@ export class SingleListManage extends BasicListManage implements ListStrategy {
 	public createData(dataSource: any[], options: object) {
 		const { outsideCount = 0 } = this.props;
 		const index = this.getFirstInViewIndex(options);
-		const startIndex = Math.max(0, index - outsideCount);
+		const start = Math.max(0, index - outsideCount);
 		const renderCount = this.getRenderCount(index, options);
-		let endIndex = startIndex + renderCount;
-		endIndex = index - outsideCount < 0 ? endIndex + outsideCount : endIndex + 2 * outsideCount;
-		return dataSource.slice(startIndex, endIndex).map((it, i) => {
+		let end = start + renderCount;
+		end = index - outsideCount < 0 ? end + outsideCount : end + 2 * outsideCount;
+		return dataSource.slice(start, end).map((it, i) => {
 			return {
 				...it,
-				$rl_originIndex: startIndex + i,
-				$rl_offsetTop: this.rectList[startIndex + i]?.offsetTop ?? 0,
-				$rl_height: this.rectList[startIndex + i]?.height ?? 0,
+				$rl_originIndex: start + i,
+				$rl_offsetTop: this.rectList[start + i]?.offsetTop ?? 0,
+				$rl_height: this.rectList[start + i]?.height ?? 0,
 			};
 		});
 	}
@@ -77,8 +77,8 @@ export class SingleListManage extends BasicListManage implements ListStrategy {
 		return count;
 	}
 
-	private reCalcOffsetTop(startIndex, height) {
-		for (let i = startIndex; i < this.rectList.length; i++) {
+	private reCalcOffsetTop(start, height) {
+		for (let i = start; i < this.rectList.length; i++) {
 			const { offsetTop: prevOffsetTop = 0, height: prevHeight = 0 } = this.rectList[i - 1] || {};
 			this.rectList[i] = {
 				offsetTop: prevOffsetTop + prevHeight,
@@ -87,11 +87,9 @@ export class SingleListManage extends BasicListManage implements ListStrategy {
 		}
 	}
 
-	private appendEmptyItems(startIndex, endIndex) {
-		for (let i = startIndex; i < startIndex + endIndex; i++) {
-			this.updateItem(i, {
-				height: this.rectList[i] ? this.rectList[i].height : PLACEHOLDER_HEIGHT
-			});
+	private appendEmptyItems(start, end) {
+		for (let i = start; i < start + end; i++) {
+			this.updateItem(i, { height: PLACEHOLDER_HEIGHT });
 		}
 	}
 
