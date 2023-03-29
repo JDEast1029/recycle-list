@@ -3,16 +3,30 @@ import { PLACEHOLDER_HEIGHT } from "../constants";
 import BasicListManage from './basic-list-manage';
 
 export class MultiListManage extends BasicListManage implements ListStrategy {
+	// 每一列中第一个进入视图的索引
+	private prevFirstInViewIndexArray: number[] = [];
+
 	public createData(dataSource: any[], options: object) {
-		let start = 0;
-		let end = 10;
+		const { outsideCount = 0 } = this.props;
+		const indexArray = this.getFirstInViewIndex(options);
+		const startArray = indexArray.map((it) => Math.max(0, it - outsideCount));
+		const renderCount = this.getRenderCount(indexArray, options);
+		let endArray = startArray.map((start, index) => start + renderCount[index]);
+		endArray = endArray.map((end, index) => {
+			return indexArray[index] - outsideCount < 0 ? end + outsideCount : end + 2 * outsideCount;
+		});
+		let start = Math.min(...startArray);
+		let end = Math.max(...endArray);
+
 		let data = Array.from({ length: this.props.cols }, () => ([]));
-		return this.rectList.reduce((pre, cur, i) => {
+		console.log(start, end);
+		return this.rectList.slice(start, end).reduce((pre, cur, i) => {
 			pre[cur.colIndex].push({
 				...dataSource[start + i],
 				$rl_originIndex: start + i,
 				$rl_offsetTop: cur?.offsetTop ?? 0,
 				$rl_height: cur?.height ?? 0,
+				$rl_colIndex: cur?.colIndex ?? 0,
 			});
 			return pre;
 		}, data);
@@ -41,6 +55,53 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 			this.reCalcOffsetTop(index, rectItem.height);
 		}
 		this.calcTotalHeight();
+	}
+
+	private getFirstInViewIndex(options: object) {
+		if (this.prevFirstInViewIndexArray.length < this.props.cols) {
+			this.prevFirstInViewIndexArray = Array.from({ length: this.props.cols }, () => -1);
+		}
+		const { scrollTop, containerHeight, contentHeight } = options;
+		for (let colI = 0; colI < this.props.cols; colI++) {
+			for (let i = 0; i < this.length - 1; i++) {
+				const { offsetTop = 0, height = 0, colIndex = 0 } = this.rectList[i] || {};
+				if (colI !== colIndex) {
+					// eslint-disable-next-line no-continue
+					continue;
+				}
+				// 第一种情况：item在顶部视图可见
+				// 第二种情况：item在顶部视图不可见，但后面item已经不够撑满容器了， 
+				if ((offsetTop <= scrollTop && offsetTop + height > scrollTop)
+					|| (offsetTop + height < scrollTop && offsetTop + height + containerHeight >= contentHeight)
+				) {
+					this.prevFirstInViewIndexArray[colIndex] = i;
+					break;
+				}
+			}
+		}
+
+		// 避免直接返回0，通过记录上一次的index，当条件不足时应当沿用上一次的index
+		return this.prevFirstInViewIndexArray;
+	}
+
+	// 计算撑满视图需要渲染的条数
+	private getRenderCount(indexArray: number[], options: object) {
+		const { containerHeight, scrollTop } = options;
+		let countArray = Array.from({ length: this.props.cols }, () => 1);
+		for (let i = 0; i < indexArray.length; i++) {
+			let index = indexArray[i];
+			const { offsetTop = 0, height = 0, colIndex = 0 } = this.rectList[index] || {};
+			let renderHeight = height - (scrollTop - offsetTop);
+			index++;
+			while (renderHeight <= containerHeight && index < this.length) {
+				if (this.rectList[index].colIndex === i) {
+					renderHeight += this.rectList[index].height;
+					countArray[i] = index;
+				}
+				index++;
+			}
+		}
+		return countArray;
 	}
 
 	private getPrevItemInShortColumn(end) {

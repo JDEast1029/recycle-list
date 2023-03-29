@@ -28,6 +28,7 @@
 				>
 					<slot name="header" />
 				</ResizeView>
+				<!-- 因为header节点并不会动态变化，所以grid内的节点的offsetTop以grid为父容器 -->
 				<RecycleGrid 
 					:cols="cols"
 					:column-gap="columnGap"
@@ -35,8 +36,9 @@
 					:data-source="currentData"
 					:row-key="rowKey"
 				>
-					<template #default="{ row }">
+					<template #default="{ row, index }">
 						<ResizeView 
+							:style="{ 'margin-top': `${index === 0 ? 0 : rowGap}px`}"
 							class="rl-core__item"
 							@resize="handleItemRectResize($event, row.$rl_originIndex)"
 							@ready="handleItemRectReady($event, row.$rl_originIndex)"

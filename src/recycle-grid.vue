@@ -1,11 +1,16 @@
 <template>
 	<div 
 		v-if="cols > 1"
+		:style="{ 'column-gap': `${columnGap}px`}"
 		:class="{ 'is-horizontal': horizontal }"
 		class="rl-multi-grid"
 	>
-		<div v-for="(col, index) in cols" :key="`$rl_col_${index}`" class="rl-multi-grid__col">
-			<slot v-for="item in dataSource[index]" :key="item[rowKey]" :row="item" />
+		<div 
+			v-for="(col, index) in cols"
+			:key="`$rl_col_${index}`"
+			class="rl-multi-grid__col"
+		>
+			<slot v-for="(item, itemIndex) in dataSource[index]" :key="item[rowKey]" :row="item" :index="itemIndex" />
 		</div>
 	</div>
 	<div v-else class="rl-single-grid">

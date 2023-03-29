@@ -2,23 +2,24 @@
 	<RecycleList 
 		:load-data="loadData"
 		:cols="2"
-		:column-gap="10"
-		:row-gap="10"
-		:page-size="10"
+		:column-gap="0"
+		:row-gap="0"
+		:page-size="30"
 		class="v-demo"
 		height="100vh"
 	>
-		<template #header>
+		<!-- <template #header>
 			<div style="height: 100px; background: #ff0000;">
 				header
 			</div>
-		</template>
+		</template> -->
 		<template #default="{ row, index}">
 			<div 
 				:style="{ background: `${COLORS[index % 4]}`, height: `${row.height}px` }"
 				style="color: #fff;"
 			>
-				{{ row.name }}; $rl_height: {{ row.$rl_height }}; $rl_offsetTop: {{ row.$rl_offsetTop }}
+				{{ row.name }}; height: {{ row.$rl_height }}; offsetTop: {{ row.$rl_offsetTop }}
+				colIndex: {{ row.$rl_colIndex }}; 
 			</div>
 		</template>
 		<template #empty>
