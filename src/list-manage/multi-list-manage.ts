@@ -87,15 +87,17 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 	}
 
 	private calcTotalHeight() {
-		const { cols } = this.props;
+		let colsHeightArray = Array.from({ length: this.props.cols }, () => -1);
 		let index = 0;
-		let totalHeight = 0;
-		while (index < cols && this.length - 1 - index >= 0) {
-			const { offsetTop = 0, height = 0 } = this.rectList[this.length - 1 - index] || {};
-			totalHeight = Math.max(totalHeight, offsetTop + height);
+		while (index < this.length && colsHeightArray.some((it) => it === -1)) {
+			const { offsetTop = 0, height = 0, colIndex = 0 } = this.rectList[this.length - 1 - index] || {};
+			if (colsHeightArray[colIndex] === -1) {
+				colsHeightArray[colIndex] = offsetTop + height;
+			}
 			index++;
 		}
 
-		this.totalHeight = totalHeight;
+		this.totalHeight = Math.max(...colsHeightArray);
+		console.log(this.totalHeight);
 	}
 }
