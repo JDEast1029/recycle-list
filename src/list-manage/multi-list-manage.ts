@@ -45,28 +45,27 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 
 	private getPrevItemInShortColumn(end) {
 		let { cols } = this.props;
+		let colsHeightArray = Array.from({ length: this.props.cols }, () => ({ height: -1, item: null }));
 		let index = 0;
-		let shortHeight;
-		let shortIndex = 0;
-		let prevColIndex = -1;
+
+		while (index <= end && colsHeightArray.some((it) => it.height === -1)) {
+			const { offsetTop = 0, height = 0, colIndex = 0 } = this.rectList[end - index] || {};
+			if (colsHeightArray[colIndex].height === -1) {
+				colsHeightArray[colIndex].height = offsetTop + height;
+				colsHeightArray[colIndex].item = this.rectList[end - index];
+			}
+			index++;
+		}
 
 		if (end + 1 < cols) {
 			return { offsetTop: 0, height: 0, colIndex: end + 1 };
+		} else {
+			const shortCol = colsHeightArray.reduce((pre, cur) => {
+				if (pre && pre.height < cur.height) return pre;
+				return cur;
+			}, null);
+			return shortCol.item;
 		}
-
-		while (index <= end) {
-			const { offsetTop = 0, height = 0, colIndex = 0 } = this.rectList[end - index];
-			if (shortHeight === undefined || (shortHeight >= offsetTop + height && colIndex !== prevColIndex)) {
-				shortHeight = offsetTop + height;
-				shortIndex = end - index;
-			}
-			if (prevColIndex !== -1 && colIndex !== prevColIndex) {
-				return this.rectList[shortIndex];
-			}
-			prevColIndex = colIndex;
-			index++;
-		}
-		return this.rectList[shortIndex];
 	}
 
 	private reCalcOffsetTop(start, height) {
@@ -98,6 +97,5 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 		}
 
 		this.totalHeight = Math.max(...colsHeightArray);
-		console.log(this.totalHeight);
 	}
 }
