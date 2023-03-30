@@ -35,6 +35,7 @@
 					:row-gap="rowGap"
 					:data-source="currentData"
 					:row-key="rowKey"
+					:translate-height="translateHeight"
 				>
 					<template #default="{ row, index }">
 						<ResizeView 
@@ -125,7 +126,11 @@ const footerHeight = ref(0); // header的高度
 
 const translateHeight = computed(() => {
 	if (props.cols > 1) {
-		return currentData.value[0] && currentData.value[0][0] ? currentData.value[0][0].$rl_offsetTop : 0;
+		return currentData.value.reduce((pre, cur) => {
+			const colOffsetTop = cur[0].$rl_offsetTop || 0;
+			if (pre === -1) return colOffsetTop;
+			return Math.min(pre, colOffsetTop);
+		}, -1);
 	}
 	return currentData.value[0] ? currentData.value[0].$rl_offsetTop : 0;
 });

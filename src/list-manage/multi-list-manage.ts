@@ -18,6 +18,9 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 		let start = Math.min(...startIndexArray);
 		let end = Math.max(...endIndexArray);
 
+		// console.log(startIndexArray, endIndexArray);
+		// console.log(start, end + 1);
+
 		let data = Array.from({ length: this.props.cols }, () => ([]));
 		return this.rectList.slice(start, end + 1).reduce((pre, cur, i) => {
 			pre[cur.colIndex].push({
@@ -56,6 +59,7 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 		this.calcTotalHeight();
 	}
 
+	// TODO: 性能优化
 	private getColumnFirstInViewIndex(options: object) {
 		if (this.prevFirstInViewIndexArray.length < this.props.cols) {
 			this.prevFirstInViewIndexArray = Array.from({ length: this.props.cols }, () => -1);
@@ -83,7 +87,7 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 		return this.prevFirstInViewIndexArray;
 	}
 
-	// 计算撑满视图需要渲染的条数
+	// TODO: 性能优化 每列撑满视图的最后一个索引
 	private getColumnEndIndex(indexArray: number[], options: object) {
 		const { containerHeight, scrollTop } = options;
 		let endIndexArray = Array.from({ length: this.props.cols }, () => 1);

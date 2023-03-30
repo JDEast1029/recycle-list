@@ -1,25 +1,24 @@
 <template>
 	<RecycleList 
 		:load-data="loadData"
-		:cols="2"
+		:cols="3"
 		:column-gap="0"
 		:row-gap="0"
 		:page-size="30"
 		class="v-demo"
 		height="100vh"
 	>
-		<!-- <template #header>
+		<template #header>
 			<div style="height: 100px; background: #ff0000;">
 				header
 			</div>
-		</template> -->
+		</template>
 		<template #default="{ row, index}">
 			<div 
 				:style="{ background: `${COLORS[index % 4]}`, height: `${row.height}px` }"
 				style="color: #fff;"
 			>
-				{{ row.name }}; height: {{ row.$rl_height }}; offsetTop: {{ row.$rl_offsetTop }}
-				colIndex: {{ row.$rl_colIndex }}; 
+				{{ row.name }}; h: {{ row.$rl_height }}; ot: {{ row.$rl_offsetTop }}
 			</div>
 		</template>
 		<template #empty>
@@ -42,7 +41,7 @@ const COLORS = [
 	'#FE4F01'
 ];
 const height = [86, 122, 149, 94, 83, 127, 85, 159, 71, 158];
-const pageCount = 1;
+const pageCount = 10;
 const loadData = (page, pageSize) => {
 	return new Promise((r, j) => {
 		setTimeout(() => {
@@ -52,13 +51,13 @@ const loadData = (page, pageSize) => {
 					id,
 					name: `第${id + 1}条数据`,
 					height: 40 + parseFloat((Math.random() * 100 + 20).toFixed(2)),
-					// height: height[index]
+					// height: 90
 				};
 			});
 			r({
 				data: {
 					list: data,
-					page: { current: page, total: pageCount, count: 10 }
+					page: { current: page, total: pageCount, count: 300 }
 				}
 			});
 		}, 1000);
