@@ -7,12 +7,13 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 	private prevFirstInViewIndexArray: number[] = [];
 
 	public createData(dataSource: any[], options: object) {
-		const { outsideCount = 0, cols = 1 } = this.props;
-		const firstViewIndexArray = this.getFirstInViewIndex(options);
-		const startIndexArray = firstViewIndexArray.map((it) => Math.max(0, it - outsideCount * cols));
-		let endIndexArray = this.getEndIndex(firstViewIndexArray, options);
+		let { outsideCount = 0, cols = 1 } = this.props;
+		outsideCount *= cols;
+		const firstViewIndexArray = this.getColumnFirstInViewIndex(options);
+		const startIndexArray = firstViewIndexArray.map((it) => Math.max(0, it - outsideCount));
+		let endIndexArray = this.getColumnEndIndex(firstViewIndexArray, options);
 		endIndexArray = endIndexArray.map((end, index) => {
-			return firstViewIndexArray[index] - outsideCount * cols < 0 ? end + outsideCount * cols : end + 2 * outsideCount * cols;
+			return firstViewIndexArray[index] - outsideCount < 0 ? end + outsideCount : end + 2 * outsideCount;
 		});
 		let start = Math.min(...startIndexArray);
 		let end = Math.max(...endIndexArray);
@@ -55,7 +56,7 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 		this.calcTotalHeight();
 	}
 
-	private getFirstInViewIndex(options: object) {
+	private getColumnFirstInViewIndex(options: object) {
 		if (this.prevFirstInViewIndexArray.length < this.props.cols) {
 			this.prevFirstInViewIndexArray = Array.from({ length: this.props.cols }, () => -1);
 		}
@@ -83,7 +84,7 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 	}
 
 	// 计算撑满视图需要渲染的条数
-	private getEndIndex(indexArray: number[], options: object) {
+	private getColumnEndIndex(indexArray: number[], options: object) {
 		const { containerHeight, scrollTop } = options;
 		let endIndexArray = Array.from({ length: this.props.cols }, () => 1);
 		for (let i = 0; i < indexArray.length; i++) {
