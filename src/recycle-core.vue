@@ -150,6 +150,7 @@ const throttleCreateRenderData = (dataSource = props.dataSource) => {
 		window.requestAnimationFrame(() => {
 			currentData.value = listManage.createData(dataSource, {
 				scrollTop: scrollTop.value, 
+				headerHeight: headerHeight.value,
 				containerHeight: containerHeight.value, 
 				contentHeight: contentHeight.value
 			});

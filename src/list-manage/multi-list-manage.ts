@@ -3,13 +3,10 @@ import { PLACEHOLDER_HEIGHT } from "../constants";
 import BasicListManage from './basic-list-manage';
 
 export class MultiListManage extends BasicListManage implements ListStrategy {
-	// 每一列中第一个进入视图的索引
-	private prevFirstInViewIndexArray: number[] = [];
-
 	public createData(dataSource: any[], options: object) {
 		let { outsideCount = 0, cols = 1 } = this.props;
 		outsideCount *= cols;
-		const firstViewIndexArray = this.getColumnFirstInViewIndex(options);
+		const firstViewIndexArray = this.getFirstVisibleIndexes(options);
 		const startIndexArray = firstViewIndexArray.map((it) => Math.max(0, it - outsideCount));
 		let endIndexArray = this.getColumnEndIndex(firstViewIndexArray, options);
 		endIndexArray = endIndexArray.map((end, index) => {
@@ -59,32 +56,23 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 		this.calcTotalHeight();
 	}
 
-	// TODO: 性能优化
-	private getColumnFirstInViewIndex(options: object) {
-		if (this.prevFirstInViewIndexArray.length < this.props.cols) {
-			this.prevFirstInViewIndexArray = Array.from({ length: this.props.cols }, () => -1);
-		}
-		const { scrollTop, containerHeight, contentHeight } = options;
-		for (let colI = 0; colI < this.props.cols; colI++) {
-			for (let i = 0; i < this.length - 1; i++) {
-				const { offsetTop = 0, height = 0, colIndex = 0 } = this.rectList[i] || {};
-				if (colI !== colIndex) {
-					// eslint-disable-next-line no-continue
-					continue;
-				}
-				// 第一种情况：item在顶部视图可见
-				// 第二种情况：item在顶部视图不可见，但后面item已经不够撑满容器了， 
-				if ((offsetTop <= scrollTop && offsetTop + height > scrollTop)
-					|| (offsetTop + height < scrollTop && offsetTop + height + containerHeight >= contentHeight)
-				) {
-					this.prevFirstInViewIndexArray[colIndex] = i;
-					break;
-				}
+	private getFirstVisibleIndexes(options: object) {
+		const { scrollTop, headerHeight, containerHeight, contentHeight } = options;
+		let firstVisibleIndexes = [];
+		const visibleTop = scrollTop;
+		const visibleBottom = scrollTop + containerHeight;
+		let visibleCount = 0;
+		for (let i = 0; i < this.rectList.length && visibleCount < this.props.cols; i++) {
+			const rect = this.rectList[i];
+			const bottom = headerHeight + rect.offsetTop + rect.height;
+			if (bottom > visibleTop) {
+				const colIndex = rect.colIndex;
+				firstVisibleIndexes[colIndex] = i;
+				visibleCount++;
 			}
 		}
 
-		// 避免直接返回0，通过记录上一次的index，当条件不足时应当沿用上一次的index
-		return this.prevFirstInViewIndexArray;
+		return firstVisibleIndexes;
 	}
 
 	// TODO: 性能优化 每列撑满视图的最后一个索引
