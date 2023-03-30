@@ -124,6 +124,9 @@ const headerHeight = ref(0); // header的高度
 const footerHeight = ref(0); // header的高度
 
 const translateHeight = computed(() => {
+	if (props.cols > 1) {
+		return currentData.value[0] && currentData.value[0][0] ? currentData.value[0][0].$rl_offsetTop : 0;
+	}
 	return currentData.value[0] ? currentData.value[0].$rl_offsetTop : 0;
 });
 

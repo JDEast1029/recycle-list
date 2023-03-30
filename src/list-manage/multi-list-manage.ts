@@ -7,20 +7,18 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 	private prevFirstInViewIndexArray: number[] = [];
 
 	public createData(dataSource: any[], options: object) {
-		const { outsideCount = 0 } = this.props;
-		const indexArray = this.getFirstInViewIndex(options);
-		const startArray = indexArray.map((it) => Math.max(0, it - outsideCount));
-		const renderCount = this.getRenderCount(indexArray, options);
-		let endArray = startArray.map((start, index) => start + renderCount[index]);
-		endArray = endArray.map((end, index) => {
-			return indexArray[index] - outsideCount < 0 ? end + outsideCount : end + 2 * outsideCount;
+		const { outsideCount = 0, cols = 1 } = this.props;
+		const firstViewIndexArray = this.getFirstInViewIndex(options);
+		const startIndexArray = firstViewIndexArray.map((it) => Math.max(0, it - outsideCount * cols));
+		let endIndexArray = this.getEndIndex(firstViewIndexArray, options);
+		endIndexArray = endIndexArray.map((end, index) => {
+			return firstViewIndexArray[index] - outsideCount * cols < 0 ? end + outsideCount * cols : end + 2 * outsideCount * cols;
 		});
-		let start = Math.min(...startArray);
-		let end = Math.max(...endArray);
+		let start = Math.min(...startIndexArray);
+		let end = Math.max(...endIndexArray);
 
 		let data = Array.from({ length: this.props.cols }, () => ([]));
-		console.log(start, end);
-		return this.rectList.slice(start, end).reduce((pre, cur, i) => {
+		return this.rectList.slice(start, end + 1).reduce((pre, cur, i) => {
 			pre[cur.colIndex].push({
 				...dataSource[start + i],
 				$rl_originIndex: start + i,
@@ -85,9 +83,9 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 	}
 
 	// 计算撑满视图需要渲染的条数
-	private getRenderCount(indexArray: number[], options: object) {
+	private getEndIndex(indexArray: number[], options: object) {
 		const { containerHeight, scrollTop } = options;
-		let countArray = Array.from({ length: this.props.cols }, () => 1);
+		let endIndexArray = Array.from({ length: this.props.cols }, () => 1);
 		for (let i = 0; i < indexArray.length; i++) {
 			let index = indexArray[i];
 			const { offsetTop = 0, height = 0, colIndex = 0 } = this.rectList[index] || {};
@@ -96,12 +94,12 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 			while (renderHeight <= containerHeight && index < this.length) {
 				if (this.rectList[index].colIndex === i) {
 					renderHeight += this.rectList[index].height;
-					countArray[i] = index;
+					endIndexArray[i] = index;
 				}
 				index++;
 			}
 		}
-		return countArray;
+		return endIndexArray;
 	}
 
 	private getPrevItemInShortColumn(end) {
@@ -122,7 +120,7 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 			return { offsetTop: 0, height: 0, colIndex: end + 1 };
 		} else {
 			const shortCol = colsHeightArray.reduce((pre, cur) => {
-				if (pre && pre.height < cur.height) return pre;
+				if (pre && pre.height <= cur.height) return pre;
 				return cur;
 			}, null);
 			return shortCol.item;
