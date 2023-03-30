@@ -37,9 +37,9 @@
 					:row-key="rowKey"
 					:translate-height="translateHeight"
 				>
-					<template #default="{ row, index }">
+					<template #default="{ row, colIndex, index }">
 						<ResizeView 
-							:style="{ 'margin-top': `${index === 0 ? 0 : rowGap}px`}"
+							:style="{ 'margin-bottom': `${index < currentData[colIndex].length - 1 ? rowGap : 0}px`}"
 							class="rl-core__item"
 							@resize="handleItemRectResize($event, row.$rl_originIndex)"
 							@ready="handleItemRectReady($event, row.$rl_originIndex)"

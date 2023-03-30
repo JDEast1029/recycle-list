@@ -11,7 +11,13 @@
 			class="rl-multi-grid__col"
 		>
 			<div :style="{ height: `${colsOffsetHeight[index]}px` }" />
-			<slot v-for="(item, itemIndex) in dataSource[index]" :key="item[rowKey]" :row="item" :index="itemIndex" />
+			<slot 
+				v-for="(item, itemIndex) in dataSource[index]"
+				:key="item[rowKey]"
+				:row="item"
+				:index="itemIndex"
+				:col-index="index"
+			/>
 		</div>
 	</div>
 	<div v-else class="rl-single-grid">

@@ -25,9 +25,22 @@ const sumChildrenHeight = () => {
 };
 
 const handleResizeCallback = (entries, observer) => {
+	let { paddingTop, paddingBottom, marginTop, marginBottom } = window.getComputedStyle(entries[0].target);
+	const borderTopWidth = parseInt(entries[0].target.style.borderTopWidth, 10) || 0;
+	const borderBottomWidth = parseInt(entries[0].target.style.borderBottomWidth, 10) || 0;
+	const borderHeight = borderTopWidth + borderBottomWidth;
+
+	const paddingTopValue = parseInt(paddingTop, 10) || 0;
+	const paddingBottomValue = parseInt(paddingBottom, 10) || 0;
+	const paddingHeight = paddingTopValue + paddingBottomValue;
+
+	const marginTopValue = parseInt(marginTop, 10) || 0;
+	const marginBottomValue = parseInt(marginBottom, 10) || 0;
+	const marginHeight = marginTopValue + marginBottomValue;
+
 	emit('resize', {
 		offsetTop: resizeRef.value.offsetTop,
-		height: Math.round(entries[0].contentRect.height)
+		height: Math.round(entries[0].contentRect.height) + paddingHeight + borderHeight + marginHeight
 	});
 };
 
