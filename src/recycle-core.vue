@@ -37,9 +37,9 @@
 					:row-key="rowKey"
 					:translate-height="translateHeight"
 				>
-					<template #default="{ row, colIndex, index }">
+					<template #default="{ row }">
 						<ResizeView 
-							:style="{ 'margin-bottom': `${index < currentData[colIndex].length - 1 ? rowGap : 0}px`}"
+							:style="{ 'margin-bottom': `${row.$rl_isLast ? 0 : rowGap}px`}"
 							class="rl-core__item"
 							@resize="handleItemRectResize($event, row.$rl_originIndex)"
 							@ready="handleItemRectReady($event, row.$rl_originIndex)"
@@ -127,7 +127,7 @@ const footerHeight = ref(0); // header的高度
 const translateHeight = computed(() => {
 	if (props.cols > 1) {
 		return currentData.value.reduce((pre, cur) => {
-			const colOffsetTop = cur[0].$rl_offsetTop || 0;
+			const colOffsetTop = cur[0] ? cur[0].$rl_offsetTop || 0 : 0;
 			if (pre === -1) return colOffsetTop;
 			return Math.min(pre, colOffsetTop);
 		}, -1);

@@ -16,7 +16,7 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 			return firstViewIndexArray[index] - outsideCount < 0 ? end + outsideCount : end + 2 * outsideCount;
 		});
 		let start = Math.min(...startIndexArray);
-		let end = Math.max(...endIndexArray);
+		let end = Math.min(this.length - 1, Math.max(...endIndexArray));
 
 		// console.log(startIndexArray, endIndexArray);
 		// console.log(start, end + 1);
@@ -29,6 +29,7 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 				$rl_offsetTop: cur?.offsetTop ?? 0,
 				$rl_height: cur?.height ?? 0,
 				$rl_colIndex: cur?.colIndex ?? 0,
+				$rl_isLast: start + i === this.length - 1
 			});
 			return pre;
 		}, data);

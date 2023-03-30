@@ -18,6 +18,7 @@ export class SingleListManage extends BasicListManage implements ListStrategy {
 				$rl_originIndex: start + i,
 				$rl_offsetTop: this.rectList[start + i]?.offsetTop ?? 0,
 				$rl_height: this.rectList[start + i]?.height ?? 0,
+				$rl_isLast: start + i === this.length - 1
 			};
 		});
 	}

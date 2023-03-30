@@ -51,7 +51,7 @@ const props = defineProps({
 
 const colsOffsetHeight = computed(() => {
 	const translateHeight = props.dataSource.reduce((pre, cur) => {
-		const colOffsetTop = cur[0].$rl_offsetTop || 0;
+		const colOffsetTop = cur[0] ? cur[0].$rl_offsetTop || 0 : 0;
 		if (pre === -1) return colOffsetTop;
 		return Math.min(pre, colOffsetTop);
 	}, -1);
