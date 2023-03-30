@@ -144,6 +144,19 @@ onBeforeMount(() => {
 onMounted(() => {
 	handleLoadData();
 });
+
+const $rl_scrollTo = (value, smooth) => {
+	coreRef.value.scrollTo(value, smooth);
+};
+
+const $rl_scrollToIndex = (index, smooth) => {
+	coreRef.value.scrollTo(index, smooth);
+};
+
+defineExpose({
+	scrollTo: $rl_scrollTo,
+	scrollToIndex: $rl_scrollToIndex
+});
 </script>
 
 <style lang="less">

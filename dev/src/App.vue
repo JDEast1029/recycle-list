@@ -1,5 +1,6 @@
 <template>
 	<RecycleList 
+		ref="listRef"
 		:load-data="loadData"
 		:cols="2"
 		:column-gap="0"
@@ -42,6 +43,9 @@ const COLORS = [
 ];
 const height = [86, 122, 149, 94, 83, 127, 85, 159, 71, 158];
 const pageCount = 10;
+
+const listRef = ref(null);
+
 const loadData = (page, pageSize) => {
 	return new Promise((r, j) => {
 		setTimeout(() => {
@@ -63,6 +67,12 @@ const loadData = (page, pageSize) => {
 		}, 1000);
 	});
 };
+
+onMounted(() => {
+	setTimeout(() => {
+		listRef.value.scrollTo(10, true);
+	}, 5000);
+});
 </script>
 
 <style lang="less">

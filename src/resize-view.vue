@@ -58,9 +58,12 @@ onUnmounted(() => {
 	resizeObserver.disconnect();
 });
 
+const getElement = () => {
+	return resizeRef.value;
+};
 defineExpose({
 	sumChildrenHeight,
-	el: resizeRef.value
+	getElement
 });
 </script>
 

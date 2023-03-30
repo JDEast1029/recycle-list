@@ -73,6 +73,7 @@ import Skeleton from './skeleton.vue';
 import RecycleGrid from './recycle-grid.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
 import { ListManage } from './list-manage/index.ts';
+import { smoothScrollTo } from "./utils";
 
 const props = defineProps({
 	height: {
@@ -222,14 +223,18 @@ const handleContainerRect = (containerRect) => {
 	containerHeight.value = containerRect.height;
 };
 
-// eslint-disable-next-line no-redeclare
-const $rl_scrollTo = (value) => {
-	// TODO: 需要resizeView对外暴露scrollTo方法
-	// containerRef.value.
+const $rl_scrollTo = (value, smooth) => {
+	const el = containerRef.value.getElement();
+	if (smooth) {
+		smoothScrollTo(el, value);
+	} else {
+		el.scrollTop = value;
+	}
 };
 
-const $rl_scrollToIndex = (index) => {
-	// TODO: 找到根据Index在itemRectArray中找到指定的元素，拿到offsetTop再去调用$rl_scrollTo
+const $rl_scrollToIndex = (index, smooth) => {
+	const { offsetTop } = this.listManage.findByIndex(index);
+	this.$rl_scrollTo(offsetTop, smooth);
 };
 
 defineExpose({
