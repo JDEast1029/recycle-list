@@ -28,8 +28,7 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 				$rl_originIndex: start + i,
 				$rl_offsetTop: cur?.offsetTop ?? 0,
 				$rl_height: cur?.height ?? 0,
-				$rl_colIndex: cur?.colIndex ?? 0,
-				$rl_isLast: start + i === this.length - 1
+				$rl_colIndex: cur?.colIndex ?? 0
 			});
 			return pre;
 		}, data);
