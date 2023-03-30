@@ -125,14 +125,11 @@ const headerHeight = ref(0); // header的高度
 const footerHeight = ref(0); // header的高度
 
 const translateHeight = computed(() => {
-	if (props.cols > 1) {
-		return currentData.value.reduce((pre, cur) => {
-			const colOffsetTop = cur[0] ? cur[0].$rl_offsetTop || 0 : 0;
-			if (pre === -1) return colOffsetTop;
-			return Math.min(pre, colOffsetTop);
-		}, -1);
-	}
-	return currentData.value[0] ? currentData.value[0].$rl_offsetTop : 0;
+	return currentData.value.reduce((pre, cur) => {
+		const colOffsetTop = cur[0] ? cur[0].$rl_offsetTop || 0 : 0;
+		if (pre === -1) return colOffsetTop;
+		return Math.min(pre, colOffsetTop);
+	}, -1);
 });
 
 const itemRectArray = []; // item 距离顶部距离的集合

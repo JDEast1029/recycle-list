@@ -1,16 +1,12 @@
 import { ListStrategy } from './types';
-import { SingleListManage } from './single-list-manage.ts';
-import { MultiListManage } from './multi-list-manage.ts';
+import { VerticalListManage } from './vertical-list-manage';
 
 export class ListManage {
 	private listManage: ListStrategy;
 
 	constructor(props: object) {
-		if (props.cols === 1) {
-			this.listManage = new SingleListManage(props);
-		} else {
-			this.listManage = new MultiListManage(props);
-		}
+
+		this.listManage = new VerticalListManage(props);
 	}
 
 	public setListManage(listManage: ListStrategy) {

@@ -1,6 +1,5 @@
 <template>
 	<div 
-		v-if="cols > 1"
 		:style="{ 'column-gap': `${columnGap}px`}"
 		:class="{ 'is-horizontal': horizontal }"
 		class="rl-multi-grid"
@@ -19,9 +18,6 @@
 				:col-index="index"
 			/>
 		</div>
-	</div>
-	<div v-else class="rl-single-grid">
-		<slot v-for="item in dataSource" :key="item[rowKey]" :row="item" />
 	</div>
 </template>
 

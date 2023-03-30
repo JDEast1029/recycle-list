@@ -2,7 +2,7 @@ import { RectItem, ListStrategy } from './types';
 import { PLACEHOLDER_HEIGHT } from "../constants";
 import BasicListManage from './basic-list-manage';
 
-export class MultiListManage extends BasicListManage implements ListStrategy {
+export class VerticalListManage extends BasicListManage implements ListStrategy {
 	private cachedFirstVisibleIndexes: number[] = []; // 存储上次获取的firstVisibleIndexes
 
 	private cachedScrollTop: number = 0; // 存储上次获取的scrollTop

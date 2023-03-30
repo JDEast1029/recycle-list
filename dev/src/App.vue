@@ -1,10 +1,10 @@
 <template>
 	<RecycleList 
 		:load-data="loadData"
-		:cols="3"
+		:cols="2"
 		:column-gap="0"
 		:row-gap="0"
-		:page-size="30"
+		:page-size="20"
 		class="v-demo"
 		height="100vh"
 	>
