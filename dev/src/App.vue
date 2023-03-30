@@ -1,9 +1,9 @@
 <template>
 	<RecycleList 
 		:load-data="loadData"
-		:cols="1"
-		:column-gap="10"
-		:row-gap="10"
+		:cols="3"
+		:column-gap="0"
+		:row-gap="0"
 		:page-size="30"
 		class="v-demo"
 		height="100vh"
@@ -41,7 +41,7 @@ const COLORS = [
 	'#FE4F01'
 ];
 const height = [86, 122, 149, 94, 83, 127, 85, 159, 71, 158];
-const pageCount = 1;
+const pageCount = 10;
 const loadData = (page, pageSize) => {
 	return new Promise((r, j) => {
 		setTimeout(() => {
@@ -57,7 +57,7 @@ const loadData = (page, pageSize) => {
 			r({
 				data: {
 					list: data,
-					page: { current: page, total: pageCount, count: 300 }
+					page: { current: page, total: pageCount, count: 500 }
 				}
 			});
 		}, 1000);

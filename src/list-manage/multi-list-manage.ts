@@ -3,12 +3,20 @@ import { PLACEHOLDER_HEIGHT } from "../constants";
 import BasicListManage from './basic-list-manage';
 
 export class MultiListManage extends BasicListManage implements ListStrategy {
+	private cachedFirstVisibleIndexes: number[] = []; // 存储上次获取的firstVisibleIndexes
+
+	private cachedScrollTop: number = 0; // 存储上次获取的scrollTop
+
 	public createData(dataSource: any[], options: object) {
 		let { outsideCount = 0, cols = 1 } = this.props;
 		outsideCount *= cols;
-		const firstViewIndexArray = this.getFirstVisibleIndexes(options);
+		const direction = options.scrollTop >= this.cachedScrollTop ? 'down' : 'up';
+		const firstViewIndexArray = this.getFirstVisibleIndexes(options, direction);
 		const startIndexArray = firstViewIndexArray.map((it) => Math.max(0, it - outsideCount));
 		const lastVisibleIndexes = this.getLastVisibleIndexes(firstViewIndexArray, options);
+
+		this.cachedScrollTop = options.scrollTop;
+
 		const endIndexArray = lastVisibleIndexes.map((end, index) => {
 			return firstViewIndexArray[index] - outsideCount < 0 ? end + outsideCount : end + 2 * outsideCount;
 		});
@@ -56,22 +64,38 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 		this.calcTotalHeight();
 	}
 
-	private getFirstVisibleIndexes(options: object) {
+	private getFirstVisibleIndexes(options: object, direction: 'up' | 'down') {
 		const { scrollTop, headerHeight, containerHeight, contentHeight } = options;
-		let firstVisibleIndexes = [];
+		let firstVisibleIndexes = Array.from({ length: this.props.cols }, () => 0);
 		const visibleTop = scrollTop;
 		const visibleBottom = scrollTop + containerHeight;
 		let visibleCount = 0;
-		for (let i = 0; i < this.rectList.length && visibleCount < this.props.cols; i++) {
-			const rect = this.rectList[i];
-			const bottom = headerHeight + rect.offsetTop + rect.height;
-			if (bottom > visibleTop) {
+
+		if (direction === 'down') {
+			let startIndex = this.cachedFirstVisibleIndexes.length ? Math.min(...this.cachedFirstVisibleIndexes) : 0;
+			for (let i = startIndex; i < this.length && visibleCount < this.props.cols; i++) {
+				const rect = this.rectList[i];
+				const bottom = headerHeight + rect.offsetTop + rect.height;
+				if (bottom > visibleTop) {
+					const colIndex = rect.colIndex;
+					firstVisibleIndexes[colIndex] = i;
+					visibleCount++;
+				}
+			}
+		} else {
+			let startIndex = Math.max(0, ...this.cachedFirstVisibleIndexes);
+			for (let i = startIndex; i >= 0 && visibleCount < this.props.cols; i--) {
+				const rect = this.rectList[i];
+				const top = headerHeight + rect.offsetTop;
 				const colIndex = rect.colIndex;
-				firstVisibleIndexes[colIndex] = i;
-				visibleCount++;
+				if (top <= visibleTop && firstVisibleIndexes[colIndex] === 0) {
+					firstVisibleIndexes[colIndex] = i;
+					visibleCount++;
+				}
 			}
 		}
 
+		this.cachedFirstVisibleIndexes = firstVisibleIndexes;
 		return firstVisibleIndexes;
 	}
 
