@@ -8,8 +8,8 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 		outsideCount *= cols;
 		const firstViewIndexArray = this.getFirstVisibleIndexes(options);
 		const startIndexArray = firstViewIndexArray.map((it) => Math.max(0, it - outsideCount));
-		let endIndexArray = this.getColumnEndIndex(firstViewIndexArray, options);
-		endIndexArray = endIndexArray.map((end, index) => {
+		const lastVisibleIndexes = this.getLastVisibleIndexes(firstViewIndexArray, options);
+		const endIndexArray = lastVisibleIndexes.map((end, index) => {
 			return firstViewIndexArray[index] - outsideCount < 0 ? end + outsideCount : end + 2 * outsideCount;
 		});
 		let start = Math.min(...startIndexArray);
@@ -75,24 +75,29 @@ export class MultiListManage extends BasicListManage implements ListStrategy {
 		return firstVisibleIndexes;
 	}
 
-	// TODO: 性能优化 每列撑满视图的最后一个索引
-	private getColumnEndIndex(indexArray: number[], options: object) {
-		const { containerHeight, scrollTop } = options;
-		let endIndexArray = Array.from({ length: this.props.cols }, () => 1);
-		for (let i = 0; i < indexArray.length; i++) {
-			let index = indexArray[i];
-			const { offsetTop = 0, height = 0, colIndex = 0 } = this.rectList[index] || {};
-			let renderHeight = height - (scrollTop - offsetTop);
-			index++;
-			while (renderHeight <= containerHeight && index < this.length) {
-				if (this.rectList[index].colIndex === i) {
-					renderHeight += this.rectList[index].height;
-					endIndexArray[i] = index;
-				}
-				index++;
+	// 每列撑满视图的最后一个索引
+	private getLastVisibleIndexes(indexes: number[], options: object) {
+		const { containerHeight, scrollTop, headerHeight } = options;
+		const lastVisibleIndexes = new Array(indexes.length);
+		const visibleBottom = scrollTop + containerHeight;
+
+		for (let i = 0; i < indexes.length; i++) {
+			let index = indexes[i];
+			if (index >= this.rectList.length) {
+				lastVisibleIndexes[i] = this.rectList.length - 1;
+				// eslint-disable-next-line no-continue
+				continue;
 			}
+			let bottom = this.rectList[index].offsetTop + this.rectList[index].height;
+			while (bottom < visibleBottom && index < this.length - 1) {
+				index++;
+				if (this.rectList[index].colIndex === i) {
+					bottom = this.rectList[index].offsetTop + this.rectList[index].height + headerHeight;
+				}
+			}
+			lastVisibleIndexes[i] = index;
 		}
-		return endIndexArray;
+		return lastVisibleIndexes;
 	}
 
 	private getPrevItemInShortColumn(end) {
