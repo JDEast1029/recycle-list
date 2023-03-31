@@ -129,9 +129,14 @@ const handleLoadData = async (refresh = false) => {
 		coreRef.value.reachBottom();
 	}
 
-	// 因为下拉加载的列表第一条数据在最下面，需要手动滚动到第一条
-	if (refresh && props.reverse) {
-		coreRef.value.scrollToIndex(0);
+	if (props.reverse) {
+		// 因为reverse的列表第一条数据在最下面，需要手动滚动到第一条
+		if (refresh) {
+			coreRef.value.scrollToIndex(0);
+		} else {
+			// 因为reverse的列表节点是从顶部插入的，scrollTop会保持不变，这样显示的数据就不是分页节点那个位置，而是最后一条
+			coreRef.value.scrollToIndex(startIndex + 1);
+		}
 	}
 };
 

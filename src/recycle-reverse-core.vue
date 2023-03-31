@@ -29,6 +29,7 @@
 					<slot name="header" />
 				</ResizeView>
 				<ResizeView 
+					:style="{ visibility: scrollTop <= headerHeight + footerHeight ? 'visible' : 'hidden' }"
 					class="rl-core__footer"
 					@resize="handleFooterRect($event)"
 					@ready="handleFooterRect($event)"
@@ -174,12 +175,13 @@ const handleReachBottom = debounce(function (e) {
 }, 300, { leading: true, trailing: false });
 
 const handleScroll = (e) => {
-	if (e.target.scrollTop === 0 && scrollTop.value !== 0) {
+	let top = contentHeight.value - containerHeight.value;
+	if (e.target.scrollTop === top && scrollTop.value !== top) {
 		e.preventDefault();
 	}
-	scrollTop.value = Math.max(0, e.target.scrollTop); // 移动端上会出现负数
+	scrollTop.value = Math.min(top, e.target.scrollTop); // 移动端上会出现负数
 	emit('scroll', scrollTop.value);
-	if (prevScrollTop < scrollTop.value && scrollTop.value + containerHeight.value + props.reachBottomDistance >= contentHeight.value) {
+	if (prevScrollTop > scrollTop.value && scrollTop.value <= props.reachBottomDistance) {
 		handleReachBottom(e);
 	}
 	prevScrollTop = scrollTop.value;
