@@ -1,13 +1,14 @@
 <template>
-	<PullDown 
+	<PullDownUp 
 		ref="pullDownRef"
 		:height="height"
-		:disabled="pullDownDisabled"
+		:disabled="!refresh"
+		:reverse="reverse"
 		:on-release="handleReleaseUpdate"
 		class="rl-main"
 	>
-		<template #pull-down="{ distance, status }">
-			<slot name="pull-down" :distance="distance" :status="status" />
+		<template #pull-status="{ distance, status }">
+			<slot name="pull-status" :distance="distance" :status="status" />
 		</template>
 		<RecycleCore 
 			ref="coreRef"
@@ -40,7 +41,7 @@
 				</slot>
 			</template>
 		</RecycleCore>
-	</PullDown>
+	</PullDownUp>
 </template>
 
 <script setup>
@@ -49,7 +50,7 @@ import { PLACEHOLDER_COUNT } from './constants.ts';
 import { createPlaceholderData } from './utils.ts';
 import RecycleCore from './recycle-core.vue';
 import Skeleton from './skeleton.vue';
-import PullDown from './pull-down.vue';
+import PullDownUp from './pull-down-up.vue';
 
 const props = defineProps({
 	...RecycleCore.props,
@@ -57,6 +58,7 @@ const props = defineProps({
 		type: Number,
 		default: 50
 	},
+	reverse: Boolean, // 是否反向滚动，正常的是下拉刷新上拉加载，设为true后变为下拉加载，上拉刷新
 	// 一开始加载时，整个页面是否展示骨架屏
 	skeleton: {
 		type: Boolean,
@@ -66,7 +68,11 @@ const props = defineProps({
 		type: Number,
 		default: 10
 	},
-	pullDownDisabled: Boolean,
+	// 开启刷新
+	refresh: {
+		type: Boolean,
+		default: true
+	},
 	loadData: {
 		type: Function,
 		required: true,
