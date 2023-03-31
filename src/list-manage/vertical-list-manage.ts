@@ -18,7 +18,7 @@ export class VerticalListManage extends BasicListManage implements ListStrategy 
 		this.cachedScrollTop = options.scrollTop;
 
 		const endIndexArray = lastVisibleIndexes.map((end, index) => {
-			return firstViewIndexArray[index] - outsideCount < 0 ? end + outsideCount : end + 2 * outsideCount;
+			return firstViewIndexArray[index] - outsideCount < 0 ? end + outsideCount : end + outsideCount;
 		});
 		let start = Math.min(...startIndexArray);
 		let end = Math.min(this.length - 1, Math.max(...endIndexArray));
