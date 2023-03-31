@@ -68,11 +68,6 @@ const loadData = (page, pageSize) => {
 	});
 };
 
-onMounted(() => {
-	setTimeout(() => {
-		listRef.value.scrollTo(10, true);
-	}, 5000);
-});
 </script>
 
 <style lang="less">

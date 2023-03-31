@@ -150,7 +150,7 @@ const $rl_scrollTo = (value, smooth) => {
 };
 
 const $rl_scrollToIndex = (index, smooth) => {
-	coreRef.value.scrollTo(index, smooth);
+	coreRef.value.scrollToIndex(index, smooth);
 };
 
 defineExpose({

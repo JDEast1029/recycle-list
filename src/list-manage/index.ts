@@ -38,4 +38,8 @@ export class ListManage {
 		this.checkListManage();
 		this.listManage.updateItem(index, rectItem);
 	}
+
+	public findByIndex(index: number): RectItem {
+		return this.listManage.findByIndex(index);
+	}
 }

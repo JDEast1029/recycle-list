@@ -233,8 +233,8 @@ const $rl_scrollTo = (value, smooth) => {
 };
 
 const $rl_scrollToIndex = (index, smooth) => {
-	const { offsetTop } = this.listManage.findByIndex(index);
-	this.$rl_scrollTo(offsetTop, smooth);
+	const { offsetTop } = listManage.findByIndex(index);
+	$rl_scrollTo(offsetTop + headerHeight.value, smooth);
 };
 
 defineExpose({
