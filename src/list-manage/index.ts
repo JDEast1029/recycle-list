@@ -1,12 +1,16 @@
 import { ListStrategy } from './types';
 import { VerticalListManage } from './vertical-list-manage';
+import { ReverseVerticalListManage } from './reverse-vertical-list-manage';
 
 export class ListManage {
 	private listManage: ListStrategy;
 
 	constructor(props: object) {
-
-		this.listManage = new VerticalListManage(props);
+		if (props.reverse) {
+			this.listManage = new ReverseVerticalListManage(props);
+		} else {
+			this.listManage = new VerticalListManage(props);
+		}
 	}
 
 	public setListManage(listManage: ListStrategy) {

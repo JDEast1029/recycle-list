@@ -3,9 +3,9 @@ import { PLACEHOLDER_HEIGHT } from "../constants";
 import BasicListManage from './basic-list-manage';
 
 export class VerticalListManage extends BasicListManage implements ListStrategy {
-	private cachedFirstVisibleIndexes: number[] = []; // 存储上次获取的firstVisibleIndexes
+	protected cachedFirstVisibleIndexes: number[] = []; // 存储上次获取的firstVisibleIndexes
 
-	private cachedScrollTop: number = 0; // 存储上次获取的scrollTop
+	protected cachedScrollTop: number = 0; // 存储上次获取的scrollTop
 
 	public createData(dataSource: any[], options: object) {
 		let { outsideCount = 0, cols = 1 } = this.props;
@@ -64,7 +64,7 @@ export class VerticalListManage extends BasicListManage implements ListStrategy 
 		this.calcTotalHeight();
 	}
 
-	private getFirstVisibleIndexes(options: object, direction: 'up' | 'down') {
+	protected getFirstVisibleIndexes(options: object, direction: 'up' | 'down') {
 		const { scrollTop, headerHeight, containerHeight, contentHeight } = options;
 		let firstVisibleIndexes = Array.from({ length: this.props.cols }, () => 0);
 		const visibleTop = scrollTop;
@@ -100,7 +100,7 @@ export class VerticalListManage extends BasicListManage implements ListStrategy 
 	}
 
 	// 每列撑满视图的最后一个索引
-	private getLastVisibleIndexes(indexes: number[], options: object) {
+	protected getLastVisibleIndexes(indexes: number[], options: object) {
 		const { containerHeight, scrollTop, headerHeight } = options;
 		const lastVisibleIndexes = new Array(indexes.length);
 		const visibleBottom = scrollTop + containerHeight;
@@ -124,7 +124,7 @@ export class VerticalListManage extends BasicListManage implements ListStrategy 
 		return lastVisibleIndexes;
 	}
 
-	private getPrevItemInShortColumn(end) {
+	protected getPrevItemInShortColumn(end) {
 		let { cols } = this.props;
 		let colsHeightArray = Array.from({ length: this.props.cols }, () => ({ height: -1, item: null }));
 		let index = 0;
@@ -149,7 +149,7 @@ export class VerticalListManage extends BasicListManage implements ListStrategy 
 		}
 	}
 
-	private reCalcOffsetTop(start, height) {
+	protected reCalcOffsetTop(start, height) {
 		for (let i = start; i < this.length; i++) {
 			const { offsetTop: prevOffsetTop = 0, height: prevHeight = 0, colIndex: prevColIndex = 0 } = this.getPrevItemInShortColumn(i - 1) || {};
 			this.rectList[i] = {
@@ -160,13 +160,13 @@ export class VerticalListManage extends BasicListManage implements ListStrategy 
 		}
 	}
 
-	private appendEmptyItems(start, end) {
+	protected appendEmptyItems(start, end) {
 		for (let i = start; i < start + end; i++) {
 			this.updateItem(i, { height: PLACEHOLDER_HEIGHT });
 		}
 	}
 
-	private calcTotalHeight() {
+	protected calcTotalHeight() {
 		let colsHeightArray = Array.from({ length: this.props.cols }, () => -1);
 		let index = 0;
 		while (index < this.length && colsHeightArray.some((it) => it === -1)) {

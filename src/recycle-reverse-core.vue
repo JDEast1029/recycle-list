@@ -3,7 +3,7 @@
 		ref="containerRef"
 		:style="{ height }"
 		:row-gap="20"
-		class="rl-core"
+		class="rl-core is-reverse"
 		@scroll="handleScrollThrottle"
 		@touchstart="handleTouchStart"
 		@touchmove="handleTouchMove"
@@ -28,6 +28,13 @@
 				>
 					<slot name="header" />
 				</ResizeView>
+				<ResizeView 
+					class="rl-core__footer"
+					@resize="handleFooterRect($event)"
+					@ready="handleFooterRect($event)"
+				>
+					<slot name="footer" />
+				</ResizeView>
 				<!-- 因为header节点并不会动态变化，所以grid内的节点的offsetTop以grid为父容器 -->
 				<RecycleGrid 
 					:cols="cols"
@@ -51,13 +58,6 @@
 						</ResizeView>
 					</template>
 				</RecycleGrid>
-				<ResizeView 
-					class="rl-core__footer"
-					@resize="handleFooterRect($event)"
-					@ready="handleFooterRect($event)"
-				>
-					<slot name="footer" />
-				</ResizeView>
 			</div>
 		</div>
 	</ResizeView>
@@ -112,7 +112,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
-const listManage = new ListManage(props);
+const listManage = new ListManage({ reverse: true, ...props });
 
 const showScrollTop = __DEV__; 
 
@@ -126,11 +126,15 @@ const headerHeight = ref(0); // header的高度
 const footerHeight = ref(0); // header的高度
 
 const translateHeight = computed(() => {
-	return currentData.value.reduce((pre, cur) => {
-		const colOffsetTop = cur[0] ? cur[0].$rl_offsetTop || 0 : 0;
-		if (pre === -1) return colOffsetTop;
-		return Math.min(pre, colOffsetTop);
-	}, -1);
+	const target = currentData.value.reduce((pre, cur) => {
+		const item = cur[0] ? cur[0] : { $rl_offsetTop: 0, $rl_height: 0 };
+		if (pre.$rl_offsetTop === 0) return item;
+		if (pre.$rl_offsetTop > item.$rl_offsetTop) {
+			return item;
+		}
+		return pre;
+	}, { $rl_offsetTop: 0, $rl_height: 0 });
+	return contentHeight.value - target.$rl_offsetTop - target.$rl_height - footerHeight.value; 
 });
 
 const itemRectArray = []; // item 距离顶部距离的集合
@@ -139,7 +143,7 @@ const { handleTouchStart, handleTouchMove, handleTouchEnd } = useCoreTouch({
 	scrollTop,
 	contentHeight,
 	containerHeight,
-	reverse: false
+	reverse: true
 });
 
 // 容器的总高度，item未渲染的那defHeight计算
@@ -238,8 +242,8 @@ const $rl_scrollTo = (value, smooth) => {
 };
 
 const $rl_scrollToIndex = (index, smooth) => {
-	const { offsetTop } = listManage.findByIndex(index);
-	$rl_scrollTo(offsetTop + headerHeight.value, smooth);
+	const { offsetTop, height } = listManage.findByIndex(index);
+	$rl_scrollTo(contentHeight.value - (offsetTop + height), smooth);
 };
 
 defineExpose({

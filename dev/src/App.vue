@@ -2,17 +2,18 @@
 	<RecycleList 
 		ref="listRef"
 		:load-data="loadData"
-		:cols="2"
+		:reverse="true"
+		:cols="1"
 		:column-gap="0"
 		:row-gap="0"
-		:page-size="20"
+		:page-size="30"
 		class="v-demo"
 		height="100vh"
 	>
 		<template #header>
-			<div style="height: 100px; background: #ff0000;">
+			<!-- <div style="height: 100px; background: #ff0000;">
 				header
-			</div>
+			</div> -->
 		</template>
 		<template #default="{ row, index}">
 			<div 
@@ -42,7 +43,7 @@ const COLORS = [
 	'#FE4F01'
 ];
 const height = [86, 122, 149, 94, 83, 127, 85, 159, 71, 158];
-const pageCount = 10;
+const pageCount = 1;
 
 const listRef = ref(null);
 
@@ -54,8 +55,8 @@ const loadData = (page, pageSize) => {
 				return {
 					id,
 					name: `第${id + 1}条数据`,
-					height: 40 + parseFloat((Math.random() * 100 + 20).toFixed(2)),
-					// height: 90
+					// height: 40 + parseFloat((Math.random() * 100 + 20).toFixed(2)),
+					height: 90
 				};
 			});
 			r({

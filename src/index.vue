@@ -10,7 +10,8 @@
 		<template #pull-status="{ distance, status }">
 			<slot name="pull-status" :distance="distance" :status="status" />
 		</template>
-		<RecycleCore 
+		<component
+			:is="reverse ? RecycleReverseCore : RecycleCore" 
 			ref="coreRef"
 			:data-source="dataSource"
 			:height="height"
@@ -40,7 +41,7 @@
 					<div v-else-if="isEnd">已全部加载</div>
 				</slot>
 			</template>
-		</RecycleCore>
+		</component>
 	</PullDownUp>
 </template>
 
@@ -49,6 +50,7 @@ import { onMounted, ref, reactive, onBeforeMount, computed, nextTick, watch } fr
 import { PLACEHOLDER_COUNT } from './constants.ts';
 import { createPlaceholderData } from './utils.ts';
 import RecycleCore from './recycle-core.vue';
+import RecycleReverseCore from './recycle-reverse-core.vue';
 import Skeleton from './skeleton.vue';
 import PullDownUp from './pull-down-up.vue';
 
@@ -126,6 +128,11 @@ const handleLoadData = async (refresh = false) => {
 	if (coreRef.value.contentHeight <= coreRef.value.containerHeight) {
 		coreRef.value.reachBottom();
 	}
+
+	// 因为下拉加载的列表第一条数据在最下面，需要手动滚动到第一条
+	if (refresh && props.reverse) {
+		coreRef.value.scrollToIndex(0);
+	}
 };
 
 const handleScrollToBottom = async (e) => {
@@ -148,7 +155,7 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-	handleLoadData();
+	handleLoadData(true);
 });
 
 const $rl_scrollTo = (value, smooth) => {
