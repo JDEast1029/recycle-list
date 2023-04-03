@@ -4,7 +4,7 @@
 		:style="{ height }"
 		:row-gap="20"
 		class="rl-core"
-		@scroll="handleScrollThrottle"
+		@scroll="handleScroll"
 		@touchstart="handleTouchStart"
 		@touchmove="handleTouchMove"
 		@touchend="handleTouchEnd"
@@ -162,7 +162,7 @@ const handleReachBottom = debounce(function (e) {
 	emit('scroll-to-bottom', e);
 }, 300, { leading: true, trailing: false });
 
-const handleScroll = (e) => {
+const handleScroll = throttleAnimationFrame((e) => {
 	if (e.target.scrollTop === 0 && scrollTop.value !== 0) {
 		e.preventDefault();
 	}
@@ -173,10 +173,6 @@ const handleScroll = (e) => {
 	}
 	prevScrollTop = scrollTop.value;
 	throttleCreateRenderData();
-};
-
-const handleScrollThrottle = throttleAnimationFrame((e) => {
-	handleScroll(e);
 });
 
 const handleHeaderRect = (itemRect) => {

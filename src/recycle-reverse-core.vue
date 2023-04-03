@@ -4,7 +4,7 @@
 		:style="{ height }"
 		:row-gap="20"
 		class="rl-core is-reverse"
-		@scroll="handleScrollThrottle"
+		@scroll="handleScroll"
 		@touchstart="handleTouchStart"
 		@touchmove="handleTouchMove"
 		@touchend="handleTouchEnd"
@@ -67,7 +67,6 @@
 
 <script setup>
 import debounce from 'lodash.debounce';
-import throttle from 'lodash.throttle';
 import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
 import { PLACEHOLDER_HEIGHT } from './constants.ts';
 import ResizeView from './resize-view.vue';
@@ -118,30 +117,28 @@ const { handleTouchStart, handleTouchMove, handleTouchEnd } = useCoreTouch({
 let prevScrollTop = 0;
 let prevContentHeight = 0;
 // 容器的总高度，item未渲染的那defHeight计算
-const calcContentHeight = throttleAnimationFrame(async () => {
+const calcContentHeight = () => {
 	contentHeight.value = headerHeight.value + listManage.totalHeight + footerHeight.value;
-	await nextTick();
-	// console.log(prevScrollTop, contentHeight.value - prevContentHeight);
 	if (contentHeight.value === prevContentHeight) return;
 	prevScrollTop += contentHeight.value - prevContentHeight;
-	containerRef.value.setScrollTop(prevScrollTop);
+	containerRef.value && containerRef.value.setScrollTop(prevScrollTop);
 	prevContentHeight = contentHeight.value;
-});
+};
 
-const throttleCreateRenderData = throttleAnimationFrame((dataSource = props.dataSource) => {
+const throttleCreateRenderData = (dataSource = props.dataSource) => {
 	currentData.value = listManage.createData(dataSource, {
 		scrollTop: scrollTop.value, 
 		headerHeight: headerHeight.value,
 		containerHeight: containerHeight.value, 
 		contentHeight: contentHeight.value
 	});
-});
+};
 
 const handleReachBottom = debounce(function (e) {
 	emit('scroll-to-bottom', e);
 }, 300, { leading: true, trailing: false });
 
-const handleScroll = (e) => {
+const handleScroll = throttleAnimationFrame((e) => {
 	let top = contentHeight.value - containerHeight.value;
 	if (e.target.scrollTop === top && scrollTop.value !== top) {
 		e.preventDefault();
@@ -153,10 +150,6 @@ const handleScroll = (e) => {
 	}
 	prevScrollTop = scrollTop.value;
 	throttleCreateRenderData();
-};
-
-const handleScrollThrottle = throttleAnimationFrame((e) => {
-	handleScroll(e);
 });
 
 const handleHeaderRect = (itemRect) => {
@@ -195,6 +188,7 @@ const handleContainerRect = (containerRect) => {
 };
 
 const $rl_scrollTo = (value, smooth) => {
+	const el = containerRef.value.getElement();
 	if (smooth) {
 		smoothScrollTo(el, value);
 	} else {

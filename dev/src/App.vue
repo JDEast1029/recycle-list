@@ -3,10 +3,10 @@
 		ref="listRef"
 		:load-data="loadData"
 		:reverse="true"
-		:cols="1"
+		:cols="2"
 		:column-gap="0"
 		:row-gap="0"
-		:page-size="20"
+		:page-size="10"
 		class="v-demo"
 		height="100vh"
 	>
@@ -43,7 +43,7 @@ const COLORS = [
 	'#FE4F01'
 ];
 const height = [86, 122, 149, 94, 83, 127, 85, 159, 71, 158];
-const pageCount = 4;
+const pageCount = 10;
 
 const listRef = ref(null);
 
@@ -56,6 +56,7 @@ const loadData = (page, pageSize) => {
 					id,
 					name: `第${id + 1}条数据`,
 					height: 40 + Math.floor(Math.random() * 100 + 20),
+					// height: 100,
 				};
 			});
 			r({
