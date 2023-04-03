@@ -146,7 +146,7 @@ const handleScroll = (e) => {
 	if (e.target.scrollTop === top && scrollTop.value !== top) {
 		e.preventDefault();
 	}
-	scrollTop.value = Math.min(top, e.target.scrollTop); // 移动端上会出现负数
+	scrollTop.value = Math.max(0, Math.min(top, e.target.scrollTop)); // 移动端上会出现负数
 	emit('scroll', scrollTop.value);
 	if (prevScrollTop > scrollTop.value && scrollTop.value <= props.reachBottomDistance) {
 		handleReachBottom(e);

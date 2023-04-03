@@ -32,12 +32,11 @@
 			</template>
 			<template #footer>
 				<slot 
-					v-if="(isLoading && !isRefreshing) || isEnd"
 					name="pull-up"
 					:loading="isLoading"
 					:end="isEnd"
 				>
-					<Skeleton v-if="isLoading" placeholder />
+					<Skeleton v-if="!isEnd" placeholder />
 					<div v-else-if="isEnd">已全部加载</div>
 				</slot>
 			</template>
