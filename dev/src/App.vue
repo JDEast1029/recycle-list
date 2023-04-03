@@ -55,8 +55,8 @@ const loadData = (page, pageSize) => {
 				return {
 					id,
 					name: `第${id + 1}条数据`,
-					height: 40 + parseFloat((Math.random() * 100 + 20).toFixed(2)),
-					// height: 100
+					// height: 40 + parseFloat((Math.random() * 100 + 20).toFixed(2)),
+					height: 100
 				};
 			});
 			r({

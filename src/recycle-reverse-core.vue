@@ -154,7 +154,8 @@ let prevContentHeight = 0;
 const calcContentHeight = throttleAnimationFrame(async () => {
 	contentHeight.value = headerHeight.value + listManage.totalHeight + footerHeight.value;
 	await nextTick();
-	console.log(prevScrollTop, contentHeight.value - prevContentHeight);
+	// console.log(prevScrollTop, contentHeight.value - prevContentHeight);
+	if (contentHeight.value === prevContentHeight) return;
 	prevScrollTop += contentHeight.value - prevContentHeight;
 	containerRef.value.setScrollTop(prevScrollTop);
 	prevContentHeight = contentHeight.value;
