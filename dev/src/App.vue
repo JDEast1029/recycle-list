@@ -3,7 +3,7 @@
 		ref="listRef"
 		:load-data="loadData"
 		:reverse="true"
-		:cols="2"
+		:cols="1"
 		:column-gap="0"
 		:row-gap="0"
 		:page-size="20"

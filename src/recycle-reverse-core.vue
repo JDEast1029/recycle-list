@@ -76,43 +76,12 @@ import RecycleGrid from './recycle-grid.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
 import { ListManage } from './list-manage/index.ts';
 import { smoothScrollTo, throttleAnimationFrame } from "./utils";
+import RecycleCore from './recycle-core.vue';
 
 const props = defineProps({
-	height: {
-		type: String,
-		default: '100%'
-	},
-	dataSource: {
-		type: Array,
-		default: () => ([])
-	},
-	// 视图之外渲染的条数，避免快速滑动时造成闪烁
-	outsideCount: {
-		type: Number,
-		default: 2
-	},
-	rowKey: {
-		type: String,
-		default: 'id'
-	},
-	reachBottomDistance: {
-		type: Number,
-		default: 0
-	},
-	cols: {
-		type: Number,
-		default: 1
-	},
-	columnGap: {
-		type: Number,
-		default: 0
-	},
-	rowGap: {
-		type: Number,
-		default: 0
-	}
+	...RecycleCore.props
 });
-const emit = defineEmits(['scroll-to-bottom', 'scroll']);
+const emit = defineEmits([...RecycleCore.emits]);
 
 const listManage = new ListManage({ reverse: true, ...props });
 
@@ -139,8 +108,6 @@ const translateHeight = computed(() => {
 	return contentHeight.value - target.$rl_offsetTop - target.$rl_height - footerHeight.value - headerHeight.value; 
 });
 
-const itemRectArray = []; // item 距离顶部距离的集合
-
 const { handleTouchStart, handleTouchMove, handleTouchEnd } = useCoreTouch({
 	scrollTop,
 	contentHeight,
@@ -161,7 +128,6 @@ const calcContentHeight = throttleAnimationFrame(async () => {
 	prevContentHeight = contentHeight.value;
 });
 
-let dataTicking = false;
 const throttleCreateRenderData = throttleAnimationFrame((dataSource = props.dataSource) => {
 	currentData.value = listManage.createData(dataSource, {
 		scrollTop: scrollTop.value, 
@@ -239,10 +205,6 @@ const $rl_scrollTo = (value, smooth) => {
 const $rl_scrollToIndex = (index, smooth) => {
 	const { offsetTop, height } = listManage.findByIndex(index);
 	$rl_scrollTo(contentHeight.value - (offsetTop + height), smooth);
-};
-
-const $rl_findRectByIndex = (index, smooth) => {
-	return listManage.findByIndex(index);
 };
 
 defineExpose({

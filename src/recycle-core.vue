@@ -73,7 +73,7 @@ import Skeleton from './skeleton.vue';
 import RecycleGrid from './recycle-grid.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
 import { ListManage } from './list-manage/index.ts';
-import { smoothScrollTo } from "./utils";
+import { smoothScrollTo, throttleAnimationFrame } from "./utils";
 
 const props = defineProps({
 	height: {
@@ -147,21 +147,14 @@ const calcContentHeight = () => {
 	contentHeight.value = headerHeight.value + listManage.totalHeight + footerHeight.value;
 };
 
-let dataTicking = false;
-const throttleCreateRenderData = (dataSource = props.dataSource) => {
-	if (!dataTicking) {
-		window.requestAnimationFrame(() => {
-			currentData.value = listManage.createData(dataSource, {
-				scrollTop: scrollTop.value, 
-				headerHeight: headerHeight.value,
-				containerHeight: containerHeight.value, 
-				contentHeight: contentHeight.value
-			});
-			dataTicking = false;
-		});
-		dataTicking = true;
-	}
-};
+const throttleCreateRenderData = throttleAnimationFrame((dataSource = props.dataSource) => {
+	currentData.value = listManage.createData(dataSource, {
+		scrollTop: scrollTop.value, 
+		headerHeight: headerHeight.value,
+		containerHeight: containerHeight.value, 
+		contentHeight: contentHeight.value
+	});
+});
 
 let prevScrollTop = 0;
 
@@ -182,16 +175,9 @@ const handleScroll = (e) => {
 	throttleCreateRenderData();
 };
 
-let ticking = false; // 给滚动事件做节流
-const handleScrollThrottle = (e) => {
-	if (!ticking) {
-		window.requestAnimationFrame(() => {
-			handleScroll(e);
-			ticking = false;
-		});
-		ticking = true;
-	}
-};
+const handleScrollThrottle = throttleAnimationFrame((e) => {
+	handleScroll(e);
+});
 
 const handleHeaderRect = (itemRect) => {
 	headerHeight.value = itemRect.height;
@@ -229,11 +215,10 @@ const handleContainerRect = (containerRect) => {
 };
 
 const $rl_scrollTo = (value, smooth) => {
-	const el = containerRef.value.getElement();
 	if (smooth) {
 		smoothScrollTo(el, value);
 	} else {
-		el.scrollTop = value;
+		containerRef.value.setScrollTop(value);
 	}
 };
 
