@@ -131,7 +131,7 @@ const translateHeight = computed(() => {
 	const target = currentData.value.reduce((pre, cur) => {
 		const item = cur[0] ? cur[0] : { $rl_offsetTop: 0, $rl_height: 0 };
 		if (pre.$rl_offsetTop === 0) return item;
-		if (pre.$rl_offsetTop > item.$rl_offsetTop) {
+		if (pre.$rl_offsetTop < item.$rl_offsetTop) {
 			return item;
 		}
 		return pre;

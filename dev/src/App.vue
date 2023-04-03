@@ -3,10 +3,10 @@
 		ref="listRef"
 		:load-data="loadData"
 		:reverse="true"
-		:cols="1"
+		:cols="2"
 		:column-gap="0"
 		:row-gap="0"
-		:page-size="10"
+		:page-size="20"
 		class="v-demo"
 		height="100vh"
 	>
@@ -55,8 +55,7 @@ const loadData = (page, pageSize) => {
 				return {
 					id,
 					name: `第${id + 1}条数据`,
-					// height: 40 + parseFloat((Math.random() * 100 + 20).toFixed(2)),
-					height: 100
+					height: 40 + Math.floor(Math.random() * 100 + 20),
 				};
 			});
 			r({
