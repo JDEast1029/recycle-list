@@ -95,7 +95,7 @@ const props = defineProps({
 	},
 	reachBottomDistance: {
 		type: Number,
-		default: 0
+		default: 50
 	},
 	cols: {
 		type: Number,

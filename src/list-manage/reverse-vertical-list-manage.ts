@@ -24,7 +24,7 @@ export class ReverseVerticalListManage extends VerticalListManage implements Lis
 		let end = Math.min(this.length - 1, Math.max(...endIndexArray));
 
 		// console.log(startIndexArray, endIndexArray);
-		// console.log(start, end + 1);
+		// console.log(start, end + 1, options.scrollTop);
 
 		let data = Array.from({ length: this.props.cols }, () => ([]));
 		return this.rectList.slice(start, end + 1).reduce((pre, cur, i) => {
