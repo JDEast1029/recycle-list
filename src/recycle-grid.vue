@@ -42,21 +42,22 @@ const props = defineProps({
 		type: Number,
 		default: 0
 	},
-	horizontal: Boolean
+	horizontal: Boolean,
+	reverse: Boolean,
+	offsetHeight: {
+		type: Number,
+		default: 0
+	},
 });
 
 const colsOffsetHeight = computed(() => {
-	const translateHeight = props.dataSource.reduce((pre, cur) => {
-		const colOffsetTop = cur[0] ? cur[0].$rl_offsetTop || 0 : 0;
-		if (pre === -1) return colOffsetTop;
-		return Math.min(pre, colOffsetTop);
-	}, -1);
 	let offsetArray = [];
 	for (let i = 0; i < props.dataSource.length; i++) {
 		const columns = props.dataSource[i] || [];
-		offsetArray[i] = Math.max(0, (columns[0].$rl_offsetTop || 0) - translateHeight);
+		let startIndex = props.reverse ? columns.length - 1 : 0;
+		offsetArray[i] = Math.max(0, (columns[startIndex].$rl_offsetTop || 0) - props.offsetHeight);
 	}
-	return offsetArray;
+	return [0, 0, 0]; // offsetArray;
 });
 </script>
 

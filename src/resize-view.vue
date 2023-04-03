@@ -61,9 +61,14 @@ onUnmounted(() => {
 const getElement = () => {
 	return resizeRef.value;
 };
+
+const setScrollTop = (value) => {
+	resizeRef.value.scrollTop = value;
+};
 defineExpose({
 	sumChildrenHeight,
-	getElement
+	getElement,
+	setScrollTop
 });
 </script>
 

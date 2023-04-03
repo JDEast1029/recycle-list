@@ -34,3 +34,16 @@ export const smoothScrollTo = (container, targetScrollTop) => {
 
 	requestAnimationFrame(step);
 };
+
+export const throttleAnimationFrame = (fn) => {
+	let dataTicking = false;
+	return function (...args) {
+		if (!dataTicking) {
+			window.requestAnimationFrame(() => {
+				fn(...args);
+				dataTicking = false;
+			});
+			dataTicking = true;
+		}
+	};
+};

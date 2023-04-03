@@ -43,7 +43,8 @@
 					:row-gap="rowGap"
 					:data-source="currentData"
 					:row-key="rowKey"
-					:translate-height="translateHeight"
+					:offset-height="translateHeight"
+					:reverse="true"
 				>
 					<template #default="{ row }">
 						<ResizeView 
@@ -74,7 +75,7 @@ import Skeleton from './skeleton.vue';
 import RecycleGrid from './recycle-grid.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
 import { ListManage } from './list-manage/index.ts';
-import { smoothScrollTo } from "./utils";
+import { smoothScrollTo, throttleAnimationFrame } from "./utils";
 
 const props = defineProps({
 	height: {
@@ -135,7 +136,7 @@ const translateHeight = computed(() => {
 		}
 		return pre;
 	}, { $rl_offsetTop: 0, $rl_height: 0 });
-	return contentHeight.value - target.$rl_offsetTop - target.$rl_height - footerHeight.value; 
+	return contentHeight.value - target.$rl_offsetTop - target.$rl_height - footerHeight.value - headerHeight.value; 
 });
 
 const itemRectArray = []; // item 距离顶部距离的集合
@@ -147,28 +148,27 @@ const { handleTouchStart, handleTouchMove, handleTouchEnd } = useCoreTouch({
 	reverse: true
 });
 
+let prevScrollTop = 0;
+let prevContentHeight = 0;
 // 容器的总高度，item未渲染的那defHeight计算
-const calcContentHeight = () => {
+const calcContentHeight = throttleAnimationFrame(async () => {
 	contentHeight.value = headerHeight.value + listManage.totalHeight + footerHeight.value;
-};
+	await nextTick();
+	console.log(prevScrollTop, contentHeight.value - prevContentHeight);
+	prevScrollTop += contentHeight.value - prevContentHeight;
+	containerRef.value.setScrollTop(prevScrollTop);
+	prevContentHeight = contentHeight.value;
+});
 
 let dataTicking = false;
-const throttleCreateRenderData = (dataSource = props.dataSource) => {
-	if (!dataTicking) {
-		window.requestAnimationFrame(() => {
-			currentData.value = listManage.createData(dataSource, {
-				scrollTop: scrollTop.value, 
-				headerHeight: headerHeight.value,
-				containerHeight: containerHeight.value, 
-				contentHeight: contentHeight.value
-			});
-			dataTicking = false;
-		});
-		dataTicking = true;
-	}
-};
-
-let prevScrollTop = 0;
+const throttleCreateRenderData = throttleAnimationFrame((dataSource = props.dataSource) => {
+	currentData.value = listManage.createData(dataSource, {
+		scrollTop: scrollTop.value, 
+		headerHeight: headerHeight.value,
+		containerHeight: containerHeight.value, 
+		contentHeight: contentHeight.value
+	});
+});
 
 const handleReachBottom = debounce(function (e) {
 	emit('scroll-to-bottom', e);
@@ -188,16 +188,9 @@ const handleScroll = (e) => {
 	throttleCreateRenderData();
 };
 
-let ticking = false; // 给滚动事件做节流
-const handleScrollThrottle = (e) => {
-	if (!ticking) {
-		window.requestAnimationFrame(() => {
-			handleScroll(e);
-			ticking = false;
-		});
-		ticking = true;
-	}
-};
+const handleScrollThrottle = throttleAnimationFrame((e) => {
+	handleScroll(e);
+});
 
 const handleHeaderRect = (itemRect) => {
 	headerHeight.value = itemRect.height;
@@ -235,17 +228,20 @@ const handleContainerRect = (containerRect) => {
 };
 
 const $rl_scrollTo = (value, smooth) => {
-	const el = containerRef.value.getElement();
 	if (smooth) {
 		smoothScrollTo(el, value);
 	} else {
-		el.scrollTop = value;
+		containerRef.value.setScrollTop(value);
 	}
 };
 
 const $rl_scrollToIndex = (index, smooth) => {
 	const { offsetTop, height } = listManage.findByIndex(index);
 	$rl_scrollTo(contentHeight.value - (offsetTop + height), smooth);
+};
+
+const $rl_findRectByIndex = (index, smooth) => {
+	return listManage.findByIndex(index);
 };
 
 defineExpose({

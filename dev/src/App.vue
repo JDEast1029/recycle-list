@@ -43,7 +43,7 @@ const COLORS = [
 	'#FE4F01'
 ];
 const height = [86, 122, 149, 94, 83, 127, 85, 159, 71, 158];
-const pageCount = 10;
+const pageCount = 4;
 
 const listRef = ref(null);
 
@@ -55,8 +55,8 @@ const loadData = (page, pageSize) => {
 				return {
 					id,
 					name: `第${id + 1}条数据`,
-					// height: 40 + parseFloat((Math.random() * 100 + 20).toFixed(2)),
-					height: 90
+					height: 40 + parseFloat((Math.random() * 100 + 20).toFixed(2)),
+					// height: 100
 				};
 			});
 			r({
