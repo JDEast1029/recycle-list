@@ -53,6 +53,7 @@ const props = defineProps({
 });
 
 const colsOffsetHeight = computed(() => {
+	if (props.cols === 1) return [0];
 	let offsetArray = [];
 	for (let i = 0; i < props.dataSource.length; i++) {
 		const columns = props.dataSource[i] || [];

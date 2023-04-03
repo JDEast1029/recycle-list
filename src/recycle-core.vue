@@ -35,7 +35,7 @@
 					:row-gap="rowGap"
 					:data-source="currentData"
 					:row-key="rowKey"
-					:translate-height="translateHeight"
+					:offset-height="translateHeight"
 				>
 					<template #default="{ row }">
 						<ResizeView 
