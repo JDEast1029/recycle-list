@@ -1,7 +1,7 @@
 <template>
 	<div class="rl-skeleton">
 		<div class="rl-skeleton__content">
-			<div class="rl-skeleton__title" style="width:38%" />
+			<div class="rl-skeleton__title" style="width: 38%" />
 			<ul class="rl-skeleton__paragraph">
 				<li />
 				<li />
@@ -21,8 +21,9 @@
 		width: 100%;
 		vertical-align: top;
 	}
-	&__title, &__paragraph > li {
-		background: linear-gradient(90deg,rgba(0,0,0,0.06) 25%,rgba(0,0,0,0.15) 37%,rgba(0,0,0,0.06) 63%);
+	&__title,
+	&__paragraph > li {
+		background: linear-gradient(90deg, rgba(0, 0, 0, 0.06) 25%, rgba(0, 0, 0, 0.15) 37%, rgba(0, 0, 0, 0.06) 63%);
 		background-size: 400% 100%;
 		animation-name: css-skeleton-loading;
 		animation-duration: 1.4s;
@@ -40,7 +41,7 @@
 		margin-block-start: 12px;
 		padding: 0;
 		box-sizing: border-box;
-		>li + li {
+		> li + li {
 			margin-block-start: 12px;
 		}
 	}

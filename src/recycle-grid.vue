@@ -1,17 +1,9 @@
 <template>
-	<div 
-		:style="{ 'column-gap': `${columnGap}px`}"
-		:class="{ 'is-horizontal': horizontal }"
-		class="rl-multi-grid"
-	>
-		<div 
-			v-for="(col, index) in cols"
-			:key="`$rl_col_${index}`"
-			class="rl-multi-grid__col"
-		>
+	<div :style="{ 'column-gap': `${columnGap}px` }" :class="{ 'is-horizontal': horizontal }" class="rl-multi-grid">
+		<div v-for="(col, index) in cols" :key="`$rl_col_${index}`" class="rl-multi-grid__col">
 			<div v-if="!reverse" :style="{ height: `${colsOffsetHeight[index]}px` }" />
 			<div v-if="reverse" :style="{ height: `${colsReverseTopOffsetHeight[index]}px` }" />
-			<slot 
+			<slot
 				v-for="(item, itemIndex) in dataSource[index]"
 				:key="item[rowKey]"
 				:row="item"
@@ -29,7 +21,7 @@ import { provide, readonly, computed } from 'vue';
 const props = defineProps({
 	dataSource: {
 		type: Array,
-		default: () => ([])
+		default: () => []
 	},
 	rowKey: String,
 	cols: {
@@ -49,7 +41,7 @@ const props = defineProps({
 	offsetHeight: {
 		type: Number,
 		default: 0
-	},
+	}
 });
 
 const colsOffsetHeight = computed(() => {
@@ -96,7 +88,7 @@ const colsReverseBottomOffsetHeight = computed(() => {
 	position: relative;
 	display: flex;
 	&__col {
-		flex: 1
+		flex: 1;
 	}
 	&.is-horizontal {
 	}

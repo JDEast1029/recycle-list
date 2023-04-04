@@ -1,5 +1,5 @@
 <template>
-	<ResizeView 
+	<ResizeView
 		ref="containerRef"
 		:style="{ height }"
 		:row-gap="20"
@@ -14,13 +14,9 @@
 	>
 		<div v-if="showScrollTop" class="rl-core__tmp">{{ scrollTop }}</div>
 		<!-- 双层设计，内层通过translateY来保证 目标item在预设范围内 -->
-		<div 
-			ref="contentRef"
-			:style="{height: `${contentHeight}px`}"
-			class="rl-core__content"
-		>
-			<div :style="{transform: `translateY(${translateHeight}px)`}">
-				<ResizeView 
+		<div ref="contentRef" :style="{ height: `${contentHeight}px` }" class="rl-core__content">
+			<div :style="{ transform: `translateY(${translateHeight}px)` }">
+				<ResizeView
 					:style="{ visibility: scrollTop <= headerHeight ? 'visible' : 'hidden' }"
 					class="rl-core__header"
 					@resize="handleHeaderRect($event)"
@@ -28,7 +24,7 @@
 				>
 					<slot name="header" />
 				</ResizeView>
-				<ResizeView 
+				<ResizeView
 					:style="{ visibility: scrollTop <= headerHeight + footerHeight ? 'visible' : 'hidden' }"
 					class="rl-core__footer"
 					@resize="handleFooterRect($event)"
@@ -37,7 +33,7 @@
 					<slot name="footer" />
 				</ResizeView>
 				<!-- 因为header节点并不会动态变化，所以grid内的节点的offsetTop以grid为父容器 -->
-				<RecycleGrid 
+				<RecycleGrid
 					:cols="cols"
 					:column-gap="columnGap"
 					:row-gap="rowGap"
@@ -47,8 +43,8 @@
 					:reverse="true"
 				>
 					<template #default="{ row }">
-						<ResizeView 
-							:style="{ 'margin-bottom': `${row.$rl_isLast ? 0 : rowGap}px`}"
+						<ResizeView
+							:style="{ 'margin-bottom': `${row.$rl_isLast ? 0 : rowGap}px` }"
 							class="rl-core__item"
 							@resize="handleItemRectResize($event, row.$rl_originIndex)"
 							@ready="handleItemRectReady($event, row.$rl_originIndex)"
@@ -74,7 +70,7 @@ import Skeleton from './skeleton.vue';
 import RecycleGrid from './recycle-grid.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
 import { ListManage } from './list-manage/index.ts';
-import { smoothScrollTo, throttleAnimationFrame } from "./utils";
+import { smoothScrollTo, throttleAnimationFrame } from './utils';
 import RecycleCore from './recycle-core.vue';
 
 const props = defineProps({
@@ -84,7 +80,7 @@ const emit = defineEmits([...RecycleCore.emits]);
 
 const listManage = new ListManage({ reverse: true, ...props });
 
-const showScrollTop = __DEV__; 
+const showScrollTop = __DEV__;
 
 const containerRef = ref(null); // 内容
 const contentRef = ref(null); // 内容
@@ -96,15 +92,18 @@ const headerHeight = ref(0); // header的高度
 const footerHeight = ref(0); // header的高度
 
 const translateHeight = computed(() => {
-	const target = currentData.value.reduce((pre, cur) => {
-		const item = cur[0] ? cur[0] : { $rl_offsetTop: 0, $rl_height: 0 };
-		if (pre.$rl_offsetTop === 0) return item;
-		if (pre.$rl_offsetTop < item.$rl_offsetTop) {
-			return item;
-		}
-		return pre;
-	}, { $rl_offsetTop: 0, $rl_height: 0 });
-	return contentHeight.value - target.$rl_offsetTop - target.$rl_height - footerHeight.value - headerHeight.value; 
+	const target = currentData.value.reduce(
+		(pre, cur) => {
+			const item = cur[0] ? cur[0] : { $rl_offsetTop: 0, $rl_height: 0 };
+			if (pre.$rl_offsetTop === 0) return item;
+			if (pre.$rl_offsetTop < item.$rl_offsetTop) {
+				return item;
+			}
+			return pre;
+		},
+		{ $rl_offsetTop: 0, $rl_height: 0 }
+	);
+	return contentHeight.value - target.$rl_offsetTop - target.$rl_height - footerHeight.value - headerHeight.value;
 });
 
 const { handleTouchStart, handleTouchMove, handleTouchEnd } = useCoreTouch({
@@ -127,16 +126,20 @@ const calcContentHeight = () => {
 
 const throttleCreateRenderData = (dataSource = props.dataSource) => {
 	currentData.value = listManage.createData(dataSource, {
-		scrollTop: scrollTop.value, 
+		scrollTop: scrollTop.value,
 		headerHeight: headerHeight.value,
-		containerHeight: containerHeight.value, 
+		containerHeight: containerHeight.value,
 		contentHeight: contentHeight.value
 	});
 };
 
-const handleReachBottom = debounce(function (e) {
-	emit('scroll-to-bottom', e);
-}, 300, { leading: true, trailing: false });
+const handleReachBottom = debounce(
+	function (e) {
+		emit('scroll-to-bottom', e);
+	},
+	300,
+	{ leading: true, trailing: false }
+);
 
 const handleScroll = throttleAnimationFrame((e) => {
 	let top = contentHeight.value - containerHeight.value;
@@ -175,7 +178,7 @@ const handleItemRectResize = (itemRect, originIndex) => {
 
 watch(
 	() => props.dataSource,
-	async (newDataSource) => {	
+	async (newDataSource) => {
 		listManage.updateData(newDataSource);
 		calcContentHeight();
 		throttleCreateRenderData(newDataSource);
@@ -224,7 +227,7 @@ defineExpose({
 		color: #fff;
 	}
 	&__content {
-		position: relative
+		position: relative;
 	}
 	&__item {
 	}

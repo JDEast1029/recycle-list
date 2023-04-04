@@ -1,5 +1,5 @@
 <template>
-	<PullDownUp 
+	<PullDownUp
 		ref="pullDownRef"
 		:height="height"
 		:disabled="!refresh"
@@ -11,7 +11,7 @@
 			<slot name="pull-status" :distance="distance" :status="status" />
 		</template>
 		<component
-			:is="reverse ? RecycleReverseCore : RecycleCore" 
+			:is="reverse ? RecycleReverseCore : RecycleCore"
 			ref="coreRef"
 			:data-source="dataSource"
 			:height="height"
@@ -31,11 +31,7 @@
 				<slot :row="row" :index="index" />
 			</template>
 			<template #footer>
-				<slot 
-					name="pull-up"
-					:loading="isLoading"
-					:end="isEnd"
-				>
+				<slot name="pull-up" :loading="isLoading" :end="isEnd">
 					<Skeleton v-if="!isEnd" placeholder />
 					<div v-else-if="isEnd">已全部加载</div>
 				</slot>
@@ -102,26 +98,22 @@ const isEnd = computed(() => {
 const formatFetchResult = (res) => {
 	return {
 		data: res.data.list,
-		page: res.data.page, // { current: 0, total: 0, count: 0} 当前页数，总页数，总条数
+		page: res.data.page // { current: 0, total: 0, count: 0} 当前页数，总页数，总条数
 	};
 };
 
 const handleLoadData = async (refresh = false) => {
 	isLoading.value = true;
-	
+
 	let res = await props.loadData(refresh ? 1 : pageInfo.value.current + 1, props.pageSize);
 	const { data, page } = props.format ? props.format(res) : formatFetchResult(res);
 	pageInfo.value = page;
 
 	const startIndex = (pageInfo.value.current - 1) * props.pageSize;
-	dataSource.value.splice(
-		startIndex, 
-		dataSource.value.length,
-		...data
-	);
+	dataSource.value.splice(startIndex, dataSource.value.length, ...data);
 
 	isLoading.value = false;
-	
+
 	await nextTick();
 
 	if (coreRef.value.contentHeight <= coreRef.value.containerHeight) {
@@ -168,6 +160,5 @@ defineExpose({
 
 <style lang="less">
 .rl-main {
-	
 }
 </style>

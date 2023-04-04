@@ -1,7 +1,7 @@
 <template>
 	<div :style="{ height }" class="rl-pull-down-up-wrapper">
-		<div 
-			:style="{height: `calc(${height} + ${pullStatusHeight}px)`, transform: `translateY(${translateHeight}px)`}"
+		<div
+			:style="{ height: `calc(${height} + ${pullStatusHeight}px)`, transform: `translateY(${translateHeight}px)` }"
 			class="rl-pull-down-up"
 			@touchstart.stop="handleTouchStart"
 			@touchmove.stop="handleTouchMove"

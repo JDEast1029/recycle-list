@@ -1,5 +1,5 @@
 <template>
-	<ResizeView 
+	<ResizeView
 		ref="containerRef"
 		:style="{ height }"
 		:row-gap="20"
@@ -14,13 +14,9 @@
 	>
 		<div v-if="showScrollTop" class="rl-core__tmp">{{ scrollTop }}</div>
 		<!-- 双层设计，内层通过translateY来保证 目标item在预设范围内 -->
-		<div 
-			ref="contentRef"
-			:style="{height: `${contentHeight}px`}"
-			class="rl-core__content"
-		>
-			<div :style="{transform: `translateY(${translateHeight}px)`}">
-				<ResizeView 
+		<div ref="contentRef" :style="{ height: `${contentHeight}px` }" class="rl-core__content">
+			<div :style="{ transform: `translateY(${translateHeight}px)` }">
+				<ResizeView
 					:style="{ visibility: scrollTop <= headerHeight ? 'visible' : 'hidden' }"
 					class="rl-core__header"
 					@resize="handleHeaderRect($event)"
@@ -29,7 +25,7 @@
 					<slot name="header" />
 				</ResizeView>
 				<!-- 因为header节点并不会动态变化，所以grid内的节点的offsetTop以grid为父容器 -->
-				<RecycleGrid 
+				<RecycleGrid
 					:cols="cols"
 					:column-gap="columnGap"
 					:row-gap="rowGap"
@@ -38,8 +34,8 @@
 					:offset-height="translateHeight"
 				>
 					<template #default="{ row }">
-						<ResizeView 
-							:style="{ 'margin-bottom': `${row.$rl_isLast ? 0 : rowGap}px`}"
+						<ResizeView
+							:style="{ 'margin-bottom': `${row.$rl_isLast ? 0 : rowGap}px` }"
 							class="rl-core__item"
 							@resize="handleItemRectResize($event, row.$rl_originIndex)"
 							@ready="handleItemRectReady($event, row.$rl_originIndex)"
@@ -51,11 +47,7 @@
 						</ResizeView>
 					</template>
 				</RecycleGrid>
-				<ResizeView 
-					class="rl-core__footer"
-					@resize="handleFooterRect($event)"
-					@ready="handleFooterRect($event)"
-				>
+				<ResizeView class="rl-core__footer" @resize="handleFooterRect($event)" @ready="handleFooterRect($event)">
 					<slot name="footer" />
 				</ResizeView>
 			</div>
@@ -73,7 +65,7 @@ import Skeleton from './skeleton.vue';
 import RecycleGrid from './recycle-grid.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
 import { ListManage } from './list-manage/index.ts';
-import { smoothScrollTo, throttleAnimationFrame } from "./utils";
+import { smoothScrollTo, throttleAnimationFrame } from './utils';
 
 const props = defineProps({
 	height: {
@@ -82,7 +74,7 @@ const props = defineProps({
 	},
 	dataSource: {
 		type: Array,
-		default: () => ([])
+		default: () => []
 	},
 	// 视图之外渲染的条数，避免快速滑动时造成闪烁
 	outsideCount: {
@@ -114,7 +106,7 @@ const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
 const listManage = new ListManage(props);
 
-const showScrollTop = __DEV__; 
+const showScrollTop = __DEV__;
 
 const containerRef = ref(null); // 内容
 const contentRef = ref(null); // 内容
@@ -149,18 +141,22 @@ const calcContentHeight = () => {
 
 const throttleCreateRenderData = throttleAnimationFrame((dataSource = props.dataSource) => {
 	currentData.value = listManage.createData(dataSource, {
-		scrollTop: scrollTop.value, 
+		scrollTop: scrollTop.value,
 		headerHeight: headerHeight.value,
-		containerHeight: containerHeight.value, 
+		containerHeight: containerHeight.value,
 		contentHeight: contentHeight.value
 	});
 });
 
 let prevScrollTop = 0;
 
-const handleReachBottom = debounce(function (e) {
-	emit('scroll-to-bottom', e);
-}, 300, { leading: true, trailing: false });
+const handleReachBottom = debounce(
+	function (e) {
+		emit('scroll-to-bottom', e);
+	},
+	300,
+	{ leading: true, trailing: false }
+);
 
 const handleScroll = throttleAnimationFrame((e) => {
 	if (e.target.scrollTop === 0 && scrollTop.value !== 0) {
@@ -198,7 +194,7 @@ const handleItemRectResize = (itemRect, originIndex) => {
 
 watch(
 	() => props.dataSource,
-	async (newDataSource) => {	
+	async (newDataSource) => {
 		listManage.updateData(newDataSource);
 		calcContentHeight();
 		throttleCreateRenderData(newDataSource);
@@ -246,7 +242,7 @@ defineExpose({
 		color: #fff;
 	}
 	&__content {
-		position: relative
+		position: relative;
 	}
 	&__item {
 	}

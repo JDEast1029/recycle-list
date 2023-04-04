@@ -74,6 +74,5 @@ defineExpose({
 
 <style lang="less">
 .rl-resize-view {
-	
 }
 </style>

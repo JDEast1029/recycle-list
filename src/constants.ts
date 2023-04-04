@@ -5,5 +5,5 @@ export const PULL_STATUS = {
 	PULL_DOWN: 1, // 下拉
 	PULL_UP: 2, // 上拉
 	RELEASABLE: 3, // 可释放的
-	RELEASED: 4, // 释放后(获取数据)
+	RELEASED: 4 // 释放后(获取数据)
 };

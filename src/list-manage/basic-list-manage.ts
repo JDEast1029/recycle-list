@@ -1,3 +1,4 @@
+import { RectItem } from './types';
 export default class BasicListManage {
 	rectList: RectItem[] = [];
 

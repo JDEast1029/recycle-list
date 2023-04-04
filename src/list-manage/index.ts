@@ -1,4 +1,4 @@
-import { ListStrategy } from './types';
+import { ListStrategy, RectItem } from './types';
 import { VerticalListManage } from './vertical-list-manage';
 import { ReverseVerticalListManage } from './reverse-vertical-list-manage';
 
@@ -38,7 +38,7 @@ export class ListManage {
 		this.listManage.updateRectList(dataSource);
 	}
 
-	public updateItem(index, rectItem) {
+	public updateItem(index: number, rectItem: RectItem) {
 		this.checkListManage();
 		this.listManage.updateItem(index, rectItem);
 	}

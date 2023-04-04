@@ -1,5 +1,5 @@
 import { RectItem, ListStrategy } from './types';
-import { PLACEHOLDER_HEIGHT } from "../constants";
+import { PLACEHOLDER_HEIGHT } from '../constants';
 import BasicListManage from './basic-list-manage';
 import { VerticalListManage } from './vertical-list-manage';
 
@@ -7,7 +7,7 @@ import { VerticalListManage } from './vertical-list-manage';
  * 反转的rectList还是按照顺序加入item，在createData的时候倒序输出
  */
 export class ReverseVerticalListManage extends VerticalListManage implements ListStrategy {
-	public createData(dataSource: any[], options: object) {
+	public createData(dataSource: any[], options: object): any[] {
 		let { outsideCount = 0, cols = 1 } = this.props;
 		outsideCount *= cols;
 		const direction = options.scrollTop >= this.cachedScrollTop ? 'down' : 'up';
@@ -26,7 +26,7 @@ export class ReverseVerticalListManage extends VerticalListManage implements Lis
 		// console.log(startIndexArray, endIndexArray);
 		// console.log(start, end + 1, options.scrollTop);
 
-		let data = Array.from({ length: this.props.cols }, () => ([]));
+		let data = Array.from({ length: this.props.cols }, () => []);
 		return this.rectList.slice(start, end + 1).reduce((pre, cur, i) => {
 			pre[cur.colIndex].unshift({
 				...dataSource[start + i],
@@ -39,7 +39,7 @@ export class ReverseVerticalListManage extends VerticalListManage implements Lis
 		}, data);
 	}
 
-	private getFirstVisibleIndexes(options: object, direction: 'up' | 'down') {
+	private getFirstVisibleIndexes(options: object, direction: 'up' | 'down'): number[] {
 		const { scrollTop, headerHeight, containerHeight, contentHeight } = options;
 		let firstVisibleIndexes = Array.from({ length: this.props.cols }, () => 0);
 		const visibleTop = contentHeight - containerHeight - scrollTop;
@@ -75,7 +75,7 @@ export class ReverseVerticalListManage extends VerticalListManage implements Lis
 	}
 
 	// 每列撑满视图的最后一个索引
-	private getLastVisibleIndexes(indexes: number[], options: object) {
+	private getLastVisibleIndexes(indexes: number[], options: object): number[] {
 		const { contentHeight, containerHeight, scrollTop, headerHeight } = options;
 		const lastVisibleIndexes = new Array(indexes.length);
 		const visibleBottom = contentHeight - scrollTop;

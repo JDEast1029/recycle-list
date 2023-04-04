@@ -2,8 +2,8 @@
 	<RecycleList 
 		ref="listRef"
 		:load-data="loadData"
-		:reverse="true"
-		:cols="2"
+		:reverse="false"
+		:cols="1"
 		:column-gap="0"
 		:row-gap="0"
 		:page-size="10"

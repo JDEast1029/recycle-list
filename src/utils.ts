@@ -1,18 +1,16 @@
 import { PLACEHOLDER_HEIGHT } from './constants.ts';
+import { AnyFunction } from './types';
 
-export const createPlaceholderData = (count: number, rowKey: 'id') => {
-	return Array.from(
-		{ length: count },
-		(it, index) => ({
-			[rowKey]: index,
-			$rl_placeholder: true,
-			$rl_originIndex: index,
-			$rl_height: PLACEHOLDER_HEIGHT
-		})
-	);
+export const createPlaceholderData = (count: number, rowKey: 'id'): any[] => {
+	return Array.from({ length: count }, (it, index) => ({
+		[rowKey]: index,
+		$rl_placeholder: true,
+		$rl_originIndex: index,
+		$rl_height: PLACEHOLDER_HEIGHT
+	}));
 };
 
-export const smoothScrollTo = (container, targetScrollTop) => {
+export const smoothScrollTo = (container: HTMLElement, targetScrollTop: number) => {
 	const currentScrollTop = container.scrollTop;
 	const distance = targetScrollTop - currentScrollTop;
 	const duration = 500; // 滚动时长，单位毫秒
@@ -35,7 +33,7 @@ export const smoothScrollTo = (container, targetScrollTop) => {
 	requestAnimationFrame(step);
 };
 
-export const throttleAnimationFrame = (fn) => {
+export const throttleAnimationFrame = (fn: AnyFunction) => {
 	let dataTicking = false;
 	return function (...args) {
 		if (!dataTicking) {
