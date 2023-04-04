@@ -1,6 +1,6 @@
 <template>
 	<PullDownUp
-		ref="pullDownRef"
+		ref="pullDownUpRef"
 		:height="height"
 		:disabled="!refresh"
 		:reverse="reverse"
@@ -40,14 +40,15 @@
 	</PullDownUp>
 </template>
 
-<script setup>
-import { onMounted, ref, reactive, onBeforeMount, computed, nextTick, watch } from 'vue';
-import { PLACEHOLDER_COUNT } from './constants.ts';
-import { createPlaceholderData } from './utils.ts';
+<script setup lang="ts">
+import { onMounted, ref, onBeforeMount, computed, nextTick, watch } from 'vue';
+import { PLACEHOLDER_COUNT } from './constants';
+import { createPlaceholderData } from './utils';
 import RecycleCore from './recycle-core.vue';
 import RecycleReverseCore from './recycle-reverse-core.vue';
 import Skeleton from './skeleton.vue';
 import PullDownUp from './pull-down-up.vue';
+import type { DefaultFetchResultType } from './types';
 
 const props = defineProps({
 	...RecycleCore.props,
@@ -79,9 +80,9 @@ const props = defineProps({
 	format: Function
 });
 
-const pullDownRef = ref(null);
-const coreRef = ref(null);
-const dataSource = ref([]);
+const pullDownUpRef = ref<InstanceType<typeof PullDownUp> | null>(null);
+const coreRef = ref<InstanceType<typeof RecycleCore | typeof RecycleReverseCore> | null>(null);
+const dataSource = ref<object[]>([]);
 const isLoading = ref(false);
 const isRefreshing = ref(false);
 
@@ -95,7 +96,7 @@ const isEnd = computed(() => {
 	return pageInfo.value.current === pageInfo.value.total && pageInfo.value.current > 0;
 });
 
-const formatFetchResult = (res) => {
+const formatFetchResult = (res: DefaultFetchResultType) => {
 	return {
 		data: res.data.list,
 		page: res.data.page // { current: 0, total: 0, count: 0} 当前页数，总页数，总条数
@@ -116,12 +117,12 @@ const handleLoadData = async (refresh = false) => {
 
 	await nextTick();
 
-	if (coreRef.value.contentHeight <= coreRef.value.containerHeight) {
+	if (coreRef.value && coreRef.value.contentHeight <= coreRef.value.containerHeight) {
 		coreRef.value.reachBottom();
 	}
 };
 
-const handleScrollToBottom = async (e) => {
+const handleScrollToBottom = async (e: UIEvent) => {
 	if (!isEmpty.value && !isEnd.value && !isLoading.value) {
 		await handleLoadData();
 	}
@@ -144,12 +145,12 @@ onMounted(() => {
 	handleLoadData(true);
 });
 
-const $rl_scrollTo = (value, smooth) => {
-	coreRef.value.scrollTo(value, smooth);
+const $rl_scrollTo = (value: number, smooth: boolean) => {
+	coreRef.value?.scrollTo(value, smooth);
 };
 
-const $rl_scrollToIndex = (index, smooth) => {
-	coreRef.value.scrollToIndex(index, smooth);
+const $rl_scrollToIndex = (index: number, smooth: boolean) => {
+	coreRef.value?.scrollToIndex(index, smooth);
 };
 
 defineExpose({

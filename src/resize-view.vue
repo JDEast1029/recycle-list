@@ -4,30 +4,24 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 
 const emit = defineEmits(['ready', 'resize']);
 
-const resizeRef = ref(null);
-let currentHeight = 0;
-let observerInstance = null;
-
-const getCurrentHeight = () => {
-	return resizeRef.value.clientHeight;
-};
+const resizeRef = ref<HTMLDivElement | null>(null);
 
 const sumChildrenHeight = () => {
-	return Array.from(resizeRef.value.children || []).reduce((pre, child) => {
+	return Array.from(resizeRef.value?.children || []).reduce((pre, child) => {
 		pre += child.clientHeight;
 		return pre;
 	}, 0);
 };
 
-const handleResizeCallback = (entries, observer) => {
+const handleResizeCallback = (entries: ResizeObserverEntry[], observer: ResizeObserver) => {
 	let { paddingTop, paddingBottom, marginTop, marginBottom } = window.getComputedStyle(entries[0].target);
-	const borderTopWidth = parseInt(entries[0].target.style.borderTopWidth, 10) || 0;
-	const borderBottomWidth = parseInt(entries[0].target.style.borderBottomWidth, 10) || 0;
+	const borderTopWidth = parseInt((entries[0].target as HTMLElement).style.borderTopWidth, 10) || 0;
+	const borderBottomWidth = parseInt((entries[0].target as HTMLElement).style.borderBottomWidth, 10) || 0;
 	const borderHeight = borderTopWidth + borderBottomWidth;
 
 	const paddingTopValue = parseInt(paddingTop, 10) || 0;
@@ -39,31 +33,33 @@ const handleResizeCallback = (entries, observer) => {
 	const marginHeight = marginTopValue + marginBottomValue;
 
 	emit('resize', {
-		offsetTop: resizeRef.value.offsetTop,
+		offsetTop: resizeRef.value?.offsetTop ?? 0,
 		height: Math.round(entries[0].contentRect.height) + paddingHeight + borderHeight + marginHeight
 	});
 };
 
-let resizeObserver = null;
+let resizeObserver: ResizeObserver | null = null;
 onMounted(() => {
 	resizeObserver = new ResizeObserver(handleResizeCallback);
-	resizeObserver.observe(resizeRef.value);
+	resizeObserver.observe(resizeRef.value!);
 	emit('ready', {
-		offsetTop: resizeRef.value.offsetTop,
-		height: resizeRef.value.clientHeight
+		offsetTop: resizeRef.value!.offsetTop,
+		height: resizeRef.value!.clientHeight
 	});
 });
 
 onUnmounted(() => {
-	resizeObserver.disconnect();
+	resizeObserver?.disconnect();
 });
 
 const getElement = () => {
 	return resizeRef.value;
 };
 
-const setScrollTop = (value) => {
-	resizeRef.value.scrollTop = value;
+const setScrollTop = (value: number) => {
+	if (resizeRef.value) {
+		resizeRef.value.scrollTop = value;
+	}
 };
 defineExpose({
 	sumChildrenHeight,

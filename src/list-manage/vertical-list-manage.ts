@@ -1,4 +1,4 @@
-import { RectItem, ListStrategy } from './types';
+import { RectItem, ItemDataType, ListStrategy } from './types';
 import { PLACEHOLDER_HEIGHT } from '../constants';
 import BasicListManage from './basic-list-manage';
 
@@ -7,7 +7,7 @@ export class VerticalListManage extends BasicListManage implements ListStrategy 
 
 	protected cachedScrollTop: number = 0; // 存储上次获取的scrollTop
 
-	public createData(dataSource: any[], options: object): any[] {
+	public createData(dataSource: any[], options: object): ItemDataType[][] {
 		let { outsideCount = 0, cols = 1 } = this.props;
 		outsideCount *= cols;
 		const direction = options.scrollTop >= this.cachedScrollTop ? 'down' : 'up';

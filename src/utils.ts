@@ -1,7 +1,8 @@
-import { PLACEHOLDER_HEIGHT } from './constants.ts';
+import { PLACEHOLDER_HEIGHT } from './constants.js';
 import { AnyFunction } from './types';
+import { PlaceholderItemType } from './list-manage/types';
 
-export const createPlaceholderData = (count: number, rowKey: 'id'): any[] => {
+export const createPlaceholderData = (count: number, rowKey: 'id'): PlaceholderItemType[] => {
 	return Array.from({ length: count }, (it, index) => ({
 		[rowKey]: index,
 		$rl_placeholder: true,

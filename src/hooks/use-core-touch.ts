@@ -5,12 +5,12 @@ export const useCoreTouch = (options) => {
 	const { touchMove, touchStart, resetTouchStatus, direction } = useGesture();
 
 	let inScrollMove = false;
-	const handleTouchStart = (e) => {
+	const handleTouchStart = (e: TouchEvent) => {
 		inScrollMove = reverse ? scrollTop.value < contentHeight.value - containerHeight.value : scrollTop.value > 0;
 		touchStart(e);
 	};
 
-	const handleTouchMove = (e) => {
+	const handleTouchMove = (e: TouchEvent) => {
 		if (inScrollMove) {
 			e.stopPropagation();
 		}
@@ -24,7 +24,7 @@ export const useCoreTouch = (options) => {
 		}
 	};
 
-	const handleTouchEnd = (e) => {
+	const handleTouchEnd = (e: TouchEvent) => {
 		resetTouchStatus();
 		inScrollMove = false;
 	};

@@ -15,15 +15,19 @@
 	</div>
 </template>
 
-<script setup>
-import { provide, readonly, computed } from 'vue';
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { ItemType } from './list-manage/types';
 
 const props = defineProps({
 	dataSource: {
-		type: Array,
+		type: Array<ItemType[]>,
 		default: () => []
 	},
-	rowKey: String,
+	rowKey: {
+		type: String,
+		default: 'id'
+	},
 	cols: {
 		type: Number,
 		default: 1

@@ -4,6 +4,25 @@ export type RectItem = {
 	colIndex?: number;
 };
 
+export type ItemDataType = {
+	$rl_originIndex: number;
+	$rl_offsetTop: number;
+	$rl_height: number;
+	$rl_colIndex: number;
+	[key: string]: unknown;
+}
+
+export type PlaceholderItemType = {
+	$rl_placeholder: boolean;
+	$rl_originIndex: number;
+	$rl_offsetTop: number;
+	$rl_height: number;
+	[key: string]: unknown;
+}
+
+export type ItemType = ItemDataType | PlaceholderItemType
+
+
 export interface ListStrategy {
 	rectList: RectItem[];
 	totalHeight: number;

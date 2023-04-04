@@ -24,17 +24,17 @@ export const useGesture = () => {
 	let startX = 0;
 	let startY = 0;
 
-	const resetTouchStatus = () => {
+	const resetTouchStatus = (event: TouchEvent) => {
 		direction.value = '';
 		offsetX.value = 0;
 		offsetY.value = 0;
 	};
-	const touchStart = (event) => {
+	const touchStart = (event: TouchEvent) => {
 		let touch = event.touches[0];
 		startX = touch.clientX;
 		startY = touch.clientY;
 	};
-	const touchMove = (event) => {
+	const touchMove = (event: TouchEvent) => {
 		let touch = event.touches[0];
 		offsetX.value = touch.clientX - startX;
 		offsetY.value = touch.clientY - startY;

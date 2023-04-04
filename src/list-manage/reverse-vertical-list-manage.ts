@@ -1,4 +1,4 @@
-import { RectItem, ListStrategy } from './types';
+import { RectItem, ItemDataType, ListStrategy } from './types';
 import { PLACEHOLDER_HEIGHT } from '../constants';
 import BasicListManage from './basic-list-manage';
 import { VerticalListManage } from './vertical-list-manage';
@@ -7,7 +7,7 @@ import { VerticalListManage } from './vertical-list-manage';
  * 反转的rectList还是按照顺序加入item，在createData的时候倒序输出
  */
 export class ReverseVerticalListManage extends VerticalListManage implements ListStrategy {
-	public createData(dataSource: any[], options: object): any[] {
+	public createData(dataSource: any[], options: object): ItemDataType[][] {
 		let { outsideCount = 0, cols = 1 } = this.props;
 		outsideCount *= cols;
 		const direction = options.scrollTop >= this.cachedScrollTop ? 'down' : 'up';

@@ -29,10 +29,10 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useGesture } from './hooks/use-gesture.js';
-import { PULL_STATUS } from './constants';
+import { PULL_STATUS } from './constants.js';
 
 const props = defineProps({
 	height: {
@@ -62,10 +62,8 @@ const emit = defineEmits([]);
 
 const { direction, offsetY, touchStart, touchMove, resetTouchStatus } = useGesture();
 
-const pullStatusRef = ref(null);
+const pullStatusRef = ref<HTMLDivElement | null>(null);
 const pullStatusHeight = ref(0);
-const pullUpRef = ref(null);
-const pullUpHeight = ref(0);
 
 const initialStatus = computed(() => {
 	return props.reverse ? PULL_STATUS.PULL_UP : PULL_STATUS.PULL_DOWN;
@@ -91,18 +89,18 @@ const canRelease = computed(() => {
 	return moveDistance.value >= props.threshold;
 });
 
-const handleTouchStart = (e) => {
+const handleTouchStart = (e: TouchEvent) => {
 	if (props.disabled) return;
 	touchStart(e);
 };
-const handleTouchMove = (e) => {
+const handleTouchMove = (e: TouchEvent) => {
 	if (props.disabled) return;
 	touchMove(e);
 	if (canRelease.value) {
 		status.value = PULL_STATUS.RELEASABLE;
 	}
 };
-const handleTouchEnd = async (e) => {
+const handleTouchEnd = async (e: TouchEvent) => {
 	// 如果下拉未达到释放更新的距离，还原初始状态
 	if (!canRelease.value) {
 		resetTouchStatus();
@@ -123,7 +121,7 @@ const handleTouchEnd = async (e) => {
 };
 
 onMounted(() => {
-	pullStatusHeight.value = pullStatusRef.value.clientHeight;
+	pullStatusHeight.value = pullStatusRef.value?.clientHeight ?? 0;
 });
 </script>
 

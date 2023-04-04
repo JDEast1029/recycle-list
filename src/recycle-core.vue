@@ -12,7 +12,7 @@
 		@resize="handleContainerRect"
 		@ready="handleContainerRect"
 	>
-		<div v-if="showScrollTop" class="rl-core__tmp">{{ scrollTop }}</div>
+		<!-- <div class="rl-core__tmp">{{ scrollTop }}</div> -->
 		<!-- 双层设计，内层通过translateY来保证 目标item在预设范围内 -->
 		<div ref="contentRef" :style="{ height: `${contentHeight}px` }" class="rl-core__content">
 			<div :style="{ transform: `translateY(${translateHeight}px)` }">
@@ -55,17 +55,17 @@
 	</ResizeView>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import debounce from 'lodash.debounce';
-import throttle from 'lodash.throttle';
-import { ref, computed, watch, nextTick, onBeforeMount, onMounted } from 'vue';
-import { PLACEHOLDER_HEIGHT } from './constants.ts';
+import pick from 'lodash.pick';
+import { ref, computed, watch } from 'vue';
 import ResizeView from './resize-view.vue';
 import Skeleton from './skeleton.vue';
 import RecycleGrid from './recycle-grid.vue';
 import { useCoreTouch } from './hooks/use-core-touch.js';
-import { ListManage } from './list-manage/index.ts';
+import { ListManage } from './list-manage/index';
 import { smoothScrollTo, throttleAnimationFrame } from './utils';
+import type { RectItem, ItemType } from './list-manage/types';
 
 const props = defineProps({
 	height: {
@@ -81,51 +81,32 @@ const props = defineProps({
 		type: Number,
 		default: 4
 	},
-	rowKey: {
-		type: String,
-		default: 'id'
-	},
 	reachBottomDistance: {
 		type: Number,
 		default: 50
 	},
-	cols: {
-		type: Number,
-		default: 1
-	},
-	columnGap: {
-		type: Number,
-		default: 0
-	},
-	rowGap: {
-		type: Number,
-		default: 0
-	}
+	...pick(RecycleGrid.props, ['rowKey', 'cols', 'columnGap', 'rowGap'])
 });
 const emit = defineEmits(['scroll-to-bottom', 'scroll']);
 
 const listManage = new ListManage(props);
 
-const showScrollTop = __DEV__;
-
-const containerRef = ref(null); // 内容
-const contentRef = ref(null); // 内容
+const containerRef = ref<InstanceType<typeof ResizeView> | null>(null); // 内容
+const contentRef = ref<HTMLDivElement | null>(null); // 内容
 const containerHeight = ref(0); // 滚动容器高度
 const scrollTop = ref(0); // 滚动距离
-const currentData = ref([]);
+const currentData = ref<ItemType[][]>([]);
 const contentHeight = ref(0); // 内容的高度
 const headerHeight = ref(0); // header的高度
 const footerHeight = ref(0); // header的高度
 
 const translateHeight = computed(() => {
-	return currentData.value.reduce((pre, cur) => {
-		const colOffsetTop = cur[0] ? cur[0].$rl_offsetTop || 0 : 0;
+	return currentData.value.reduce((pre: number, cur: ItemType[]): number => {
+		const colOffsetTop = cur[0]?.$rl_offsetTop ?? 0;
 		if (pre === -1) return colOffsetTop;
 		return Math.min(pre, colOffsetTop);
 	}, -1);
 });
-
-const itemRectArray = []; // item 距离顶部距离的集合
 
 const { handleTouchStart, handleTouchMove, handleTouchEnd } = useCoreTouch({
 	scrollTop,
@@ -151,7 +132,7 @@ const throttleCreateRenderData = throttleAnimationFrame((dataSource = props.data
 let prevScrollTop = 0;
 
 const handleReachBottom = debounce(
-	function (e) {
+	function (e?: UIEvent) {
 		emit('scroll-to-bottom', e);
 	},
 	300,
@@ -171,22 +152,22 @@ const handleScroll = throttleAnimationFrame((e) => {
 	throttleCreateRenderData();
 });
 
-const handleHeaderRect = (itemRect) => {
+const handleHeaderRect = (itemRect: RectItem) => {
 	headerHeight.value = itemRect.height;
 	calcContentHeight();
 };
 
-const handleFooterRect = (itemRect) => {
+const handleFooterRect = (itemRect: RectItem) => {
 	footerHeight.value = itemRect.height;
 	calcContentHeight();
 };
 
-const handleItemRectReady = (itemRect, originIndex) => {
+const handleItemRectReady = (itemRect: RectItem, originIndex: number) => {
 	listManage.updateItem(originIndex, itemRect);
 	calcContentHeight();
 };
 
-const handleItemRectResize = (itemRect, originIndex) => {
+const handleItemRectResize = (itemRect: RectItem, originIndex: number) => {
 	listManage.updateItem(originIndex, itemRect);
 	calcContentHeight();
 	throttleCreateRenderData();
@@ -202,19 +183,20 @@ watch(
 	{ deep: true, immediate: true }
 );
 
-const handleContainerRect = (containerRect) => {
+const handleContainerRect = (containerRect: RectItem) => {
 	containerHeight.value = containerRect.height;
 };
 
-const $rl_scrollTo = (value, smooth) => {
-	if (smooth) {
+const $rl_scrollTo = (value: number, smooth: boolean) => {
+	const el = containerRef.value?.getElement();
+	if (smooth && el) {
 		smoothScrollTo(el, value);
 	} else {
-		containerRef.value.setScrollTop(value);
+		containerRef.value?.setScrollTop(value);
 	}
 };
 
-const $rl_scrollToIndex = (index, smooth) => {
+const $rl_scrollToIndex = (index: number, smooth: boolean) => {
 	const { offsetTop } = listManage.findByIndex(index);
 	$rl_scrollTo(offsetTop + headerHeight.value, smooth);
 };
