@@ -24,7 +24,7 @@
 			</div>
 		</template>
 		<template #empty>
-			<div style="height: 100px; background: #0e7;">
+			<div style="height: 100px; background: #00ee77;">
 				empty
 			</div>
 		</template>
