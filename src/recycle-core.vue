@@ -87,7 +87,7 @@ const props = defineProps({
 	// 视图之外渲染的条数，避免快速滑动时造成闪烁
 	outsideCount: {
 		type: Number,
-		default: 2
+		default: 4
 	},
 	rowKey: {
 		type: String,

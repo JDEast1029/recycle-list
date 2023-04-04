@@ -21,20 +21,20 @@
 		>
 			<div :style="{transform: `translateY(${translateHeight}px)`}">
 				<ResizeView 
-					:style="{ visibility: scrollTop <= footerHeight ? 'visible' : 'hidden' }"
-					class="rl-core__footer"
-					@resize="handleFooterRect($event)"
-					@ready="handleFooterRect($event)"
-				>
-					<slot name="footer" />
-				</ResizeView>
-				<ResizeView 
-					:style="{ visibility: scrollTop <= headerHeight + footerHeight ? 'visible' : 'hidden' }"
+					:style="{ visibility: scrollTop <= headerHeight ? 'visible' : 'hidden' }"
 					class="rl-core__header"
 					@resize="handleHeaderRect($event)"
 					@ready="handleHeaderRect($event)"
 				>
 					<slot name="header" />
+				</ResizeView>
+				<ResizeView 
+					:style="{ visibility: scrollTop <= headerHeight + footerHeight ? 'visible' : 'hidden' }"
+					class="rl-core__footer"
+					@resize="handleFooterRect($event)"
+					@ready="handleFooterRect($event)"
+				>
+					<slot name="footer" />
 				</ResizeView>
 				<!-- 因为header节点并不会动态变化，所以grid内的节点的offsetTop以grid为父容器 -->
 				<RecycleGrid 

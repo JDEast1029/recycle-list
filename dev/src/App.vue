@@ -11,9 +11,9 @@
 		height="100vh"
 	>
 		<template #header>
-			<!-- <div style="height: 100px; background: #ff0000;">
+			<div style="height: 100px; background: #ff0000;">
 				header
-			</div> -->
+			</div>
 		</template>
 		<template #default="{ row, index}">
 			<div 
