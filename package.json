@@ -67,21 +67,5 @@
     "lodash.pick": "^4.4.0",
     "lodash.throttle": "^4.1.1",
     "resize-observer-polyfill": "^1.5.1"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS"
-    }
-  },
-  "lint-staged": {
-    "*.{js,ts,vue}": [
-      "eslint --fix",
-      "git add"
-    ],
-    "*.{vue,css,scss}": [
-      "stylelint --fix",
-      "git add"
-    ]
   }
 }
