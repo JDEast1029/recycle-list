@@ -88,12 +88,15 @@ const colsReverseBottomOffsetHeight = computed(() => {
 .rl-single-grid {
 	position: relative;
 }
+
 .rl-multi-grid {
 	position: relative;
 	display: flex;
+
 	&__col {
 		flex: 1;
 	}
+
 	&.is-horizontal {
 	}
 }

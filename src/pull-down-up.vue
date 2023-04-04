@@ -129,6 +129,7 @@ onMounted(() => {
 .rl-pull-down-up-wrapper {
 	overflow: hidden;
 }
+
 .rl-pull-down-up {
 	overflow: hidden;
 }

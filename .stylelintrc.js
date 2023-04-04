@@ -1,7 +1,6 @@
 module.exports = {
 	extends: [
 	  'stylelint-config-standard',
-	  'stylelint-config-recommended-less',
 	  'stylelint-config-standard-vue'
 	],
 	plugins: ['stylelint-order'],
@@ -39,6 +38,7 @@ module.exports = {
 		  ignorePseudoClasses: ['deep']
 		}
 	  ],
+	  'block-no-empty': null,
 	  // 指定样式的排序
 	  'order/properties-order': [
 		'position',

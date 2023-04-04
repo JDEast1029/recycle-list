@@ -11,7 +11,7 @@
 		height="100vh"
 	>
 		<template #header>
-			<div style="height: 100px; background: #ff0000;">
+			<div style="height: 100px; background: #f00;">
 				header
 			</div>
 		</template>
@@ -24,7 +24,7 @@
 			</div>
 		</template>
 		<template #empty>
-			<div style="height: 100px; background: #00ee77;">
+			<div style="height: 100px; background: #0e7;">
 				empty
 			</div>
 		</template>

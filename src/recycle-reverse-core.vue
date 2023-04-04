@@ -214,19 +214,22 @@ defineExpose({
 <style lang="less">
 .rl-core {
 	position: relative; // offsetTop已该节点为基准
-	height: 100%;
 	overflow-y: auto;
+	height: 100%;
+
 	&__tmp {
 		position: fixed;
 		top: 20px;
 		right: 20px;
 		z-index: 1;
-		background-color: #000000;
 		color: #fff;
+		background-color: #000;
 	}
+
 	&__content {
 		position: relative;
 	}
+
 	&__item {
 	}
 }
