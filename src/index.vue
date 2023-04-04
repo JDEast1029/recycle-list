@@ -161,6 +161,5 @@ defineExpose({
 
 <style lang="less">
 .rl-main {
-	color: #000000;
 }
 </style>

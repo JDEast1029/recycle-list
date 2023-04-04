@@ -73,6 +73,6 @@ const loadData = (page, pageSize) => {
 
 <style lang="less">
 .v-demo {
-	
+	color: #000000;
 }
 </style>
