@@ -24,7 +24,7 @@
 			</div>
 		</template>
 		<template #empty>
-			<div style="height: 100px; background: #00ee77;">
+			<div style="height: 100px; background: #0e7;">
 				empty
 			</div>
 		</template>
@@ -73,6 +73,6 @@ const loadData = (page, pageSize) => {
 
 <style lang="less">
 .v-demo {
-	color: #ffffff;
+	color: #fff;
 }
 </style>
