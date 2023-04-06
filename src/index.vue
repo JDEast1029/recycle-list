@@ -52,10 +52,6 @@ import type { DefaultFetchResultType } from './types';
 
 const props = defineProps({
 	...RecycleCore.props,
-	reachBottomDistance: {
-		type: Number,
-		default: 50
-	},
 	reverse: Boolean, // 是否反向滚动，正常的是下拉刷新上拉加载，设为true后变为下拉加载，上拉刷新
 	// 一开始加载时，整个页面是否展示骨架屏
 	skeleton: {
