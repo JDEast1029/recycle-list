@@ -1,12 +1,13 @@
-import { PLACEHOLDER_HEIGHT } from './constants.js';
-import { AnyFunction } from './types';
-import { PlaceholderItemType } from './list-manage/types';
+import { PLACEHOLDER_HEIGHT } from './constants';
+import type { AnyFunction } from './types';
+import type { PlaceholderItemType } from './list-manage/types';
 
-export const createPlaceholderData = (count: number, rowKey: 'id'): PlaceholderItemType[] => {
-	return Array.from({ length: count }, (it, index) => ({
+export const createPlaceholderData = (count: number, rowKey: string = 'id'): PlaceholderItemType[] => {
+	return Array.from({ length: count }, (it: any, index: number) => ({
 		[rowKey]: index,
 		$rl_placeholder: true,
 		$rl_originIndex: index,
+		$rl_offsetTop: 0,
 		$rl_height: PLACEHOLDER_HEIGHT
 	}));
 };
@@ -15,9 +16,9 @@ export const smoothScrollTo = (container: HTMLElement, targetScrollTop: number) 
 	const currentScrollTop = container.scrollTop;
 	const distance = targetScrollTop - currentScrollTop;
 	const duration = 500; // 滚动时长，单位毫秒
-	let startTime = null;
+	let startTime: number | null = null;
 
-	function step(timestamp) {
+	function step(timestamp: number) {
 		if (!startTime) {
 			startTime = timestamp;
 		}
@@ -36,7 +37,7 @@ export const smoothScrollTo = (container: HTMLElement, targetScrollTop: number) 
 
 export const throttleAnimationFrame = (fn: AnyFunction) => {
 	let dataTicking = false;
-	return function (...args) {
+	return function (...args: unknown[]) {
 		if (!dataTicking) {
 			window.requestAnimationFrame(() => {
 				fn(...args);

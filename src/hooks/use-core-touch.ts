@@ -1,6 +1,6 @@
 import { useGesture } from './use-gesture';
 
-export const useCoreTouch = (options) => {
+export const useCoreTouch = (options: any) => {
 	const { scrollTop, contentHeight, containerHeight, reverse } = options || {};
 	const { touchMove, touchStart, resetTouchStatus, direction } = useGesture();
 

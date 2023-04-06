@@ -9,7 +9,7 @@
 		</div>
 	</div>
 </template>
-
+<script setup lang="ts" />
 <style lang="less">
 .rl-skeleton {
 	display: table;

@@ -1,11 +1,11 @@
-import { ListStrategy, RectItem } from './types';
+import type { CoreProps, ListStrategy, RectItem, ItemDataType, CreateDataOptions } from './types';
 import { VerticalListManage } from './vertical-list-manage';
 import { ReverseVerticalListManage } from './reverse-vertical-list-manage';
 
 export class ListManage {
 	private listManage: ListStrategy;
 
-	constructor(props: object) {
+	constructor(props: CoreProps) {
 		if (props.reverse) {
 			this.listManage = new ReverseVerticalListManage(props);
 		} else {
@@ -28,7 +28,7 @@ export class ListManage {
 		return this.listManage.totalHeight;
 	}
 
-	public createData(dataSource: any[], options = object): any[] {
+	public createData(dataSource: any[], options: CreateDataOptions): ItemDataType[][] {
 		this.checkListManage();
 		return this.listManage.createData(dataSource, options);
 	}

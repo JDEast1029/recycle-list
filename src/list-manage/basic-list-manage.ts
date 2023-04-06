@@ -1,12 +1,12 @@
-import { RectItem } from './types';
+import type { CoreProps, RectItem } from './types';
 export default class BasicListManage {
 	rectList: RectItem[] = [];
 
 	totalHeight: number = 0;
 
-	props: object = {};
+	props: CoreProps;
 
-	constructor(props: object) {
+	constructor(props: CoreProps) {
 		this.props = props;
 	}
 

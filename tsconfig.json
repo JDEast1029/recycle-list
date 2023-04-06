@@ -15,16 +15,19 @@
     "skipLibCheck": true,
     "noEmit": true,
     "allowJs": true,
-    "types": [
-      "@types/node",
-      "@types/vue",
-      "@types/lodash.debounce",
-      "@types/lodash.pick"
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": [
+      "./node_modules/@types"
     ],
+    "types": [
+      "vue",
+      "lodash.debounce",
+      "lodash.pick"
+    ]
   },
   "include": ["src/**/*"],
   "exclude": [
     "node_modules",
-    "examples/**/*"
+    "lib"
   ]
 }

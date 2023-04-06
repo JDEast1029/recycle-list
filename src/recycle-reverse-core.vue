@@ -71,14 +71,14 @@ import RecycleCore from './recycle-core.vue';
 import { useCoreTouch } from './hooks/use-core-touch';
 import { ListManage } from './list-manage/index';
 import { smoothScrollTo, throttleAnimationFrame } from './utils';
-import type { RectItem, ItemType } from './list-manage/types';
+import type { RectItem, ItemType, CoreProps } from './list-manage/types';
 
 const props = defineProps({
 	...RecycleCore.props
 });
 const emit = defineEmits([...RecycleCore.emits]);
 
-const listManage = new ListManage({ reverse: true, ...props });
+const listManage = new ListManage({ reverse: true, ...props } as CoreProps);
 
 const containerRef = ref<InstanceType<typeof ResizeView> | null>(null); // 内容
 const contentRef = ref<HTMLDivElement | null>(null); // 内容

@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 
 let MIN_DISTANCE = 10;
-const getDirection = (x, y) => {
+const getDirection = (x: number, y: number): string => {
 	if (Math.abs(x) > Math.abs(y) && Math.abs(x) > MIN_DISTANCE) {
 		if (x > 0) {
 			return 'right';
@@ -24,7 +24,7 @@ export const useGesture = () => {
 	let startX = 0;
 	let startY = 0;
 
-	const resetTouchStatus = (event: TouchEvent) => {
+	const resetTouchStatus = (event?: TouchEvent) => {
 		direction.value = '';
 		offsetX.value = 0;
 		offsetY.value = 0;
